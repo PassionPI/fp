@@ -1,0 +1,22 @@
+{
+  "name": "@fp/async",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PassionPI/fp-async.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PassionPI/fp-async/issues"
+  },
+  "homepage": "https://github.com/PassionPI/fp-async#readme",
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  }
+}

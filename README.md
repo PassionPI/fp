@@ -1,1 +1,1 @@
-# fp-either
+# @fp/async
