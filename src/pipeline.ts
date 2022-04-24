@@ -8,12 +8,14 @@ type Pipeline<T> = JoinPipePromise<T>;
 
 class PipePromise<X> extends Promise<[unknown, X]> {
   pipe<R>(f: (x: X) => R): Pipeline<R> {
-    return super.then(([e, v]) => {
-      if (e == null) {
-        return pipeline((res) => res(f(v)));
-      }
-      return tupleErr(e);
-    }, tupleErr) as any;
+    return super
+      .then(([e, v]) => {
+        if (e == null) {
+          return pipeline.resolve(f(v));
+        }
+        return tupleErr(e);
+      })
+      .catch(tupleErr) as any;
   }
 }
 
