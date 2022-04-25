@@ -1,4 +1,4 @@
-import { tupleErr, tupleVal } from "./utils";
+import { tuple } from "./utils";
 
 interface Either {
   <A extends unknown[], R>(fn: (...args: A) => R): <E = unknown>(
@@ -10,8 +10,7 @@ interface Either {
 export const either: Either = (fn) =>
   new Proxy(fn, {
     apply: (...args) =>
-      new Promise((resolve) => resolve(Reflect.apply(...args))).then(
-        tupleVal,
-        tupleErr
-      ),
+      Promise.resolve()
+        .then(() => Reflect.apply(...args))
+        .then(...tuple),
   }) as any;
