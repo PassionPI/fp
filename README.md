@@ -1,1 +1,1 @@
-# @fp/async
+# fp-async

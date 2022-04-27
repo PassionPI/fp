@@ -1,6 +1,6 @@
 {
   "name": "fp-async",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "scripts": {
     "build": "npm run build:check && vite build && npm run build:type",
@@ -35,14 +35,14 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "main": "./dist/async.cjs.js",
-  "module": "./dist/async.es.js",
+  "main": "./dist/fp-async.cjs.js",
+  "module": "./dist/fp-async.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/async.es.js",
-      "require": "./dist/async.cjs.js",
-      "default": "./dist/async.es.js",
+      "import": "./dist/fp-async.es.js",
+      "require": "./dist/fp-async.cjs.js",
+      "default": "./dist/fp-async.es.js",
       "types": "./dist/index.d.ts"
     }
   },
