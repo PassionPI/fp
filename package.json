@@ -1,6 +1,6 @@
 {
   "name": "fp-async",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "",
   "scripts": {
     "build": "npm run build:check && vite build && npm run build:type",
