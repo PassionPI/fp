@@ -1,22 +1,55 @@
 {
-  "name": "@fp/async",
+  "name": "fp-async",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build:check && vite build && npm run build:type",
+    "build:check": "npm run test:run && tsc --noEmit",
+    "build:type": "tsc -p ./tsconfig.dist.json -emitDeclarationOnly",
+    "debug:file": "esno",
+    "test:dev": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:cov": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PassionPI/fp-async.git"
   },
-  "author": "",
+  "author": "PassionPI <472121553@qq.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/PassionPI/fp-async/issues"
   },
   "homepage": "https://github.com/PassionPI/fp-async#readme",
   "devDependencies": {
-    "typescript": "^4.6.3"
-  }
+    "@vitest/ui": "^0.10.0",
+    "c8": "^7.11.2",
+    "esno": "^0.14.1",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.5",
+    "vitest": "^0.10.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "main": "./dist/async.cjs.js",
+  "module": "./dist/async.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/async.es.js",
+      "require": "./dist/async.cjs.js",
+      "default": "./dist/async.es.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "keywords": [
+    "async",
+    "fp",
+    "functional",
+    "utility"
+  ]
 }
