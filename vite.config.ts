@@ -7,10 +7,7 @@ export default defineConfig({
       "@": "/src",
     },
   },
-  test: {
-    /* for example, use global to avoid globals imports (describe, test, expect): */
-    // globals: true,
-  },
+  test: {},
   build: {
     lib: {
       entry: "src/index.ts",
