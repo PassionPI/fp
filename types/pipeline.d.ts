@@ -1,11 +1,6 @@
-declare type JoinPipePromise<T> = T extends PipePromise<infer U> | Promise<infer U> ? JoinPipePromise<U> : PipePromise<T>;
-declare type Pipeline<T> = JoinPipePromise<T>;
-declare class PipePromise<X> extends Promise<[unknown, X]> {
-    pipe<R>(f: (x: X) => R): Pipeline<R>;
+declare type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U> ? PipeChain<U> : Pipeline<T>;
+declare class Pipeline<X> extends Promise<[Error | null, X]> {
+    pipe<R>(f: (x: X) => R): PipeChain<R>;
 }
-declare const pipeline: {
-    <T>(f: (res: (x: T) => void, rej: (x: any) => void) => void): JoinPipePromise<T>;
-    resolve<T_1>(x?: T_1 | undefined): JoinPipePromise<T_1>;
-    reject<T_2>(x?: T_2 | undefined): JoinPipePromise<T_2>;
-};
-export { pipeline, Pipeline };
+declare const pipeline: <X>(x?: X | undefined) => PipeChain<X>;
+export { pipeline };

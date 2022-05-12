@@ -1,27 +1,16 @@
-import { tuple, tupleErr } from "./utils";
+import { tuples } from "./tuple";
 
-type JoinPipePromise<T> = T extends PipePromise<infer U> | Promise<infer U>
-  ? JoinPipePromise<U>
-  : PipePromise<T>;
+type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U>
+  ? PipeChain<U>
+  : Pipeline<T>;
 
-type Pipeline<T> = JoinPipePromise<T>;
-
-class PipePromise<X> extends Promise<[unknown, X]> {
-  pipe<R>(f: (x: X) => R): Pipeline<R> {
-    return super
-      .then(([e, v]) => (e == null ? f(v) : tupleErr(e)))
-      .then(...tuple) as any;
+class Pipeline<X> extends Promise<[Error | null, X]> {
+  pipe<R>(f: (x: X) => R): PipeChain<R> {
+    return super.then((t) => (t[0] ? t : f(t[1]))).then(...tuples) as any;
   }
 }
 
-const pipeline = <T>(
-  f: (res: (x: T) => void, rej: (x: any) => void) => void
-): Pipeline<T> => new PipePromise(f as any).then(...tuple) as any;
+const pipeline = <X>(x?: X): PipeChain<X> =>
+  Pipeline.resolve(x).then(...tuples) as any;
 
-pipeline.resolve = <T>(x?: T): Pipeline<T> =>
-  PipePromise.resolve(x).then(...tuple) as any;
-
-pipeline.reject = <T>(x?: T): Pipeline<T> =>
-  PipePromise.reject(x).then(...tuple) as any;
-
-export { pipeline, Pipeline };
+export { pipeline };

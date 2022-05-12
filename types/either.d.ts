@@ -1,5 +1,5 @@
 interface Either {
-    <A extends unknown[], R>(fn: (...args: A) => R): <E = unknown>(...args: A) => Promise<[E, R extends Promise<infer U> ? U : R]>;
+    <A extends unknown[], R>(fn: (...args: A) => R): <X = R>(...args: A) => Promise<[Error | null, Awaited<X>]>;
 }
 export declare const either: Either;
 export {};

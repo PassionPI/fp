@@ -12,6 +12,7 @@ export default defineConfig({
     lib: {
       entry: "src/index.ts",
       formats: ["cjs", "es"],
+      fileName: (format) => `bundle.${format}.js`,
     },
   },
 });

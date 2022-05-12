@@ -23,21 +23,21 @@ const promiseOk = () => {
 test("either Err", async () => {
   const wrap = either(promiseErr);
   const [err, data] = await wrap();
-  expect(err).toBe(ERR_MSG);
+  expect(err instanceof Error).toBe(true);
   expect(data).toBe(null);
 });
 
 test("either Err No Msg", async () => {
   const wrap = either(promiseErrNoMsg);
   const [err, data] = await wrap();
-  expect(err).toBeTruthy();
+  expect(err instanceof Error).toBe(true);
   expect(data).toBe(null);
 });
 
 test("either Err Falsy", async () => {
   const wrap = either(promiseErrFalsy);
   const [err, data] = await wrap();
-  expect(err).toBeTruthy();
+  expect(err instanceof Error).toBe(true);
   expect(data).toBe(null);
 });
 

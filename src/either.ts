@@ -1,16 +1,17 @@
-import { tuple } from "./utils";
+import { tuples } from "./tuple";
 
 interface Either {
-  <A extends unknown[], R>(fn: (...args: A) => R): <E = unknown>(
+  <A extends unknown[], R>(fn: (...args: A) => R): <X = R>(
     ...args: A
-  ) => Promise<[E, R extends Promise<infer U> ? U : R]>;
+  ) => Promise<[Error | null, Awaited<X>]>;
 }
 
-//* promise结果的二元错误处理。返回 -> [错误, 结果]
-export const either: Either = (fn) =>
-  new Proxy(fn, {
-    apply: (...args) =>
-      Promise.resolve()
+export const either: Either = (fn) => {
+  return new Proxy(fn, {
+    apply(...args) {
+      return Promise.resolve()
         .then(() => Reflect.apply(...args))
-        .then(...tuple),
+        .then(...tuples) as any;
+    },
   }) as any;
+};
