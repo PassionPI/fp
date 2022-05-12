@@ -68,4 +68,20 @@ class Pipeline extends Promise {
   }
 }
 const pipeline = (x) => Pipeline.resolve(x).then(...tuples);
-export { either, interval, lock, pended, pipeline, wait };
+const _resolve = () => Promise.resolve();
+const shuttle = (fns, end = _resolve) => either((ctx) => {
+  const dispatch = async (i) => {
+    var _a;
+    let done = false;
+    const fn = (_a = fns[i]) != null ? _a : end;
+    const pm = await fn(ctx, () => {
+      if (done)
+        return _resolve();
+      done = true;
+      return dispatch(i + 1);
+    });
+    return pm;
+  };
+  return dispatch(0);
+});
+export { either, interval, lock, pended, pipeline, shuttle, wait };

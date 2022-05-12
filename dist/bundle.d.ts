@@ -22,6 +22,11 @@ declare class Pipeline<X> extends Promise<[Error | null, X]> {
 }
 declare const pipeline: <X>(x?: X | undefined) => PipeChain<X>;
 
+interface Mid<T> {
+    (ctx: T, next: () => Promise<void>): Promise<void>;
+}
+declare const shuttle: <Ctx>(fns: Mid<Ctx>[], end?: () => Promise<void>) => <X = Promise<void>>(ctx: Ctx) => Promise<[Error | null, Awaited<X>]>;
+
 declare const wait: (ms?: number | undefined) => Promise<unknown>;
 
-export { either, interval, lock, pended, pipeline, wait };
+export { either, interval, lock, pended, pipeline, shuttle, wait };
