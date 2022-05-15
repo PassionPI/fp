@@ -4,7 +4,7 @@ interface Either {
 declare const either: Either;
 
 declare const interval: (ms?: number | undefined) => {
-    loop: (fn: () => void | Promise<void>, onErr?: (e: any) => void) => Promise<void>;
+    loop: <X = Promise<void>>(fn: () => void | Promise<void>) => Promise<[Error | null, Awaited<X>]>;
     stop: () => void;
 };
 
@@ -22,9 +22,7 @@ declare class Pipeline<X> extends Promise<[Error | null, X]> {
 }
 declare const pipeline: <X>(x?: X | undefined) => PipeChain<X>;
 
-interface Mid<T> {
-    (ctx: T, next: () => Promise<void>): Promise<void>;
-}
+declare type Mid<T> = (ctx: T, next: () => Promise<void>) => Promise<void>;
 declare const shuttle: <Ctx>(fns: Mid<Ctx>[], end?: () => Promise<void>) => <X = Promise<void>>(ctx: Ctx) => Promise<[Error | null, Awaited<X>]>;
 
 declare const wait: (ms?: number | undefined) => Promise<unknown>;

@@ -1,4 +1,4 @@
 export declare const interval: (ms?: number | undefined) => {
-    loop: (fn: () => void | Promise<void>, onErr?: (e: any) => void) => Promise<void>;
+    loop: <X = Promise<void>>(fn: () => void | Promise<void>) => Promise<[Error | null, Awaited<X>]>;
     stop: () => void;
 };

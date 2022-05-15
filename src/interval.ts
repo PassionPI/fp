@@ -1,3 +1,4 @@
+import { either } from "./either";
 import { wait } from "./wait";
 
 export const interval = (ms?: number) => {
@@ -5,22 +6,14 @@ export const interval = (ms?: number) => {
   const stop = () => {
     run = false;
   };
-  const loop = async (
-    fn: () => void | Promise<void>,
-    onErr: (e: any) => void = () => {}
-  ) => {
+  const loop = either(async (fn: () => void | Promise<void>) => {
     run = true;
+    await wait(ms);
     while (run) {
+      await fn();
       await wait(ms);
-      if (run) {
-        try {
-          await fn();
-        } catch (e) {
-          onErr(e);
-        }
-      }
     }
-  };
+  });
   return {
     loop,
     stop,

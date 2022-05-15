@@ -1,9 +1,9 @@
-import { tuples } from "./tuple";
+import { Jar, tuples } from "./tuple";
 
 interface Either {
   <A extends unknown[], R>(fn: (...args: A) => R): <X = R>(
     ...args: A
-  ) => Promise<[Error | null, Awaited<X>]>;
+  ) => Promise<Jar<X>>;
 }
 
 export const either: Either = (fn) => {

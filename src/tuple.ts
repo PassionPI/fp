@@ -22,3 +22,5 @@ export const tupleVal = <T>(v: T): [null, T] =>
   (isTuple(v) ? v : freeze(Tuple.of(null, v))) as [null, T];
 
 export const tuples = [tupleVal, tupleErr] as const;
+
+export type Jar<T> = [Error | null, Awaited<T>];
