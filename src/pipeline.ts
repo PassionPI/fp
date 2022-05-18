@@ -1,7 +1,7 @@
-import { Jar, tuples } from "./tuple";
+import { Jar, JarChainJoin, tuples } from "./utils/tuple";
 
 type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U>
-  ? PipeChain<U>
+  ? PipeChain<JarChainJoin<U>>
   : Pipeline<T>;
 
 class Pipeline<X> extends Promise<Jar<X>> {

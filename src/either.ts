@@ -1,4 +1,4 @@
-import { Jar, tuples } from "./tuple";
+import { Jar, tuples } from "./utils/tuple";
 
 interface Either {
   <A extends unknown[], R>(fn: (...args: A) => R): <X = R>(

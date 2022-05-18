@@ -1,6 +1,6 @@
-class Tuple<T> extends Array<T> {}
+import { freeze } from "./object";
 
-export const { freeze } = Object;
+class Tuple<T> extends Array<T> {}
 
 export const isTuple = (x: unknown): x is Tuple<unknown> => x instanceof Tuple;
 
@@ -18,9 +18,13 @@ export const tupleErr = (v?: unknown): [Error, null] =>
         )
       )) as [Error, null];
 
-export const tupleVal = <T>(v: T): [null, T] =>
-  (isTuple(v) ? v : freeze(Tuple.of(null, v))) as [null, T];
+export const tupleVal = <T>(v: T): Jar<T> =>
+  (isTuple(v) ? v : freeze(Tuple.of(null, v))) as Jar<T>;
 
 export const tuples = [tupleVal, tupleErr] as const;
 
 export type Jar<T> = [Error | null, Awaited<T>];
+export type JarChain<T> = T extends Jar<infer U> ? JarChainJoin<U> : Jar<T>;
+export type JarChainJoin<T> = T extends Jar<infer U>
+  ? JarChainJoin<U>
+  : Awaited<T>;

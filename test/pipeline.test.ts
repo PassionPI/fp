@@ -1,4 +1,4 @@
-import { pipeline } from "@/index";
+import { either, pipeline } from "@/index";
 import { expect, test } from "vitest";
 
 test("pipeline base 1", async () => {
@@ -66,4 +66,13 @@ test("pipeline nest pipeline", async () => {
     .pipe((x) => Promise.resolve([x + 1, x + 2]));
   expect(err).toBe(null);
   expect(data).toEqual([2, 3]);
+});
+
+test("pipeline nest either", async () => {
+  const wrap = either(() => Promise.resolve(1));
+  const [err, data] = await pipeline()
+    .pipe(wrap)
+    .pipe((x) => x);
+  expect(err).toBe(null);
+  expect(data).toEqual(1);
 });

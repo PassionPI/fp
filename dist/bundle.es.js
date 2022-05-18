@@ -1,6 +1,6 @@
+const { freeze, create } = Object;
 class Tuple extends Array {
 }
-const { freeze } = Object;
 const isTuple = (x) => x instanceof Tuple;
 const tupleErr = (v) => isTuple(v) ? v[0] ? v : tupleErr() : freeze(Tuple.of(v instanceof Error ? v : Error(typeof v == "object" ? JSON.stringify(v) : String(v)), null));
 const tupleVal = (v) => isTuple(v) ? v : freeze(Tuple.of(null, v));
@@ -31,24 +31,32 @@ const interval = (ms) => {
     stop
   };
 };
-const lock = (fn) => {
-  let loading = false;
-  let pending = Promise.resolve();
-  return new Proxy(either(fn), {
+const compose = (...fns) => (acc) => {
+  for (const fn of fns) {
+    acc = fn(acc);
+  }
+  return acc;
+};
+const asyncCompose = (...fns) => async (acc) => {
+  for (const fn of fns) {
+    acc = fn(await acc);
+  }
+  return acc;
+};
+const _lock = (fn) => {
+  let pending = null;
+  return new Proxy(fn, {
     async apply(...args) {
-      return Promise.resolve().then(() => {
-        if (loading == false) {
-          pending = Reflect.apply(...args);
-          loading = true;
-        }
-        return pending;
-      }).then((value) => {
-        loading = false;
-        return value;
-      });
+      if (pending == null) {
+        pending = Reflect.apply(...args);
+      }
+      const result = await pending;
+      pending = null;
+      return result;
     }
   });
 };
+const lock = compose(_lock, either);
 const pended = () => {
   let resolve, reject;
   const pending = new Promise((res, rej) => {
@@ -62,18 +70,41 @@ class Pipeline extends Promise {
   }
 }
 const pipeline = (x) => Pipeline.resolve(x).then(...tuples);
-const _resolve = () => Promise.resolve();
-const shuttle = (fns, end = _resolve) => either((ctx) => {
-  const dispatch = async (i) => {
-    var _a;
-    let done = false;
-    return ((_a = fns[i]) != null ? _a : end)(ctx, () => {
-      if (done)
-        return _resolve();
-      done = true;
-      return dispatch(i + 1);
-    });
+const SIGN = Symbol();
+const TYPE = Symbol();
+const isFunctor = (x) => x && x[SIGN] == TYPE;
+function functor(x) {
+  if (isFunctor(x)) {
+    return x;
+  }
+  const callee = functor;
+  if (!isTuple(x)) {
+    return callee(tupleVal(x));
+  }
+  const safe = (fn, data) => {
+    try {
+      return callee(tupleVal(fn(data)));
+    } catch (e) {
+      return callee(tupleErr(e));
+    }
   };
-  return dispatch(0);
-});
-export { either, interval, lock, pended, pipeline, shuttle, wait };
+  const box = create(null);
+  box[SIGN] = TYPE;
+  box.join = () => x;
+  box.map = (fn) => {
+    const [e, data] = x;
+    if (e) {
+      return box;
+    }
+    return safe(fn, data);
+  };
+  box.ap = (data) => {
+    const [e, fn] = x;
+    if (e) {
+      return box;
+    }
+    return safe(fn, data);
+  };
+  return freeze(box);
+}
+export { asyncCompose, compose, either, functor, interval, isFunctor, lock, pended, pipeline, wait };

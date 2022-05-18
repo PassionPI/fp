@@ -1,10 +1,13 @@
-import { isTuple, tupleErr, tupleVal } from "@/tuple";
+import { isTuple, tupleErr, tupleVal } from "@/utils/tuple";
 import { expect, test } from "vitest";
 
 const msg_err = "msg_err";
+const obj_err = { message: "msg_err" };
 const msg_ok = "msg_ok";
+const err = new Error(msg_err);
 const base_tuple_err_no_msg = tupleErr();
 const base_tuple_err = tupleErr(msg_err);
+const base_tuple_obj_err = tupleErr(obj_err);
 const base_tuple_ok = tupleVal(msg_ok);
 
 test("isTuple", async () => {
@@ -17,6 +20,20 @@ test("val", async () => {
   const [err, data] = base_tuple_ok;
   expect(data).toBe(msg_ok);
   expect(err).toBeNull();
+});
+
+test("Error value", async () => {
+  const [e, data] = tupleErr(err);
+  expect(data).toBeNull();
+  expect(e instanceof Error).toBe(true);
+  expect(e.message).toBe(msg_err);
+});
+
+test("obj message Error", async () => {
+  const [err, data] = base_tuple_obj_err;
+  expect(data).toBeNull();
+  expect(err instanceof Error).toBe(true);
+  expect(err.message).toBe(JSON.stringify(obj_err));
 });
 
 test("no message Error", async () => {
@@ -56,7 +73,6 @@ test("nest val", async () => {
 test("nest val -> err", async () => {
   const [err, data] = tupleVal(base_tuple_err);
   expect(data).toBeNull();
-  //@ts-expect-error
   expect(err instanceof Error).toBe(true);
   //@ts-expect-error
   expect(err.message).toBe(msg_err);
