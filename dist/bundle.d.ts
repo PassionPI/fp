@@ -1,5 +1,4 @@
 declare type Jar<T> = [Error | null, Awaited<T>];
-declare type JarChain<T> = T extends Jar<infer U> ? JarChainJoin<U> : Jar<T>;
 declare type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
 
 interface Either {
@@ -14,10 +13,10 @@ declare const interval: (ms?: number | undefined) => {
 
 declare const lock: <A extends unknown[], R>(init?: ((...args: A) => R) | undefined) => <X = R>(...args: A) => Promise<Jar<X>>;
 
-declare const pended: () => {
-    resolve: () => void;
-    reject: () => void;
-    pending: Promise<void>;
+declare const pended: <T = unknown, E = unknown>() => {
+    resolve: (data?: T | PromiseLike<T> | undefined) => void;
+    reject: (msg?: E | undefined) => void;
+    pending: Promise<T>;
 };
 
 declare type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U> ? PipeChain<JarChainJoin<U>> : Pipeline<T>;
@@ -63,13 +62,13 @@ declare const compose: Compose;
 declare const asyncCompose: AsyncCompose;
 
 declare type Functor<T extends unknown> = {
-    ap(x: JarChainJoin<T> extends (...args: any[]) => any ? Parameters<JarChainJoin<T>>[0] : never): JarChainJoin<T> extends (...args: any[]) => any ? FunctorChain<JarChain<ReturnType<JarChainJoin<T>>>> : never;
-    map<R>(f: (x: JarChainJoin<T>) => R): FunctorChain<JarChain<R>>;
+    ap(x: JarChainJoin<T> extends (...args: any[]) => any ? Parameters<JarChainJoin<T>>[0] : never): JarChainJoin<T> extends (...args: any[]) => any ? FunctorJarChain<ReturnType<JarChainJoin<T>>> : never;
+    map<R>(f: (x: JarChainJoin<T>) => R): FunctorJarChain<R>;
     join(): T;
 };
-declare type FunctorChain<T> = T extends Functor<infer U> ? FunctorChain<U> : Functor<T>;
-declare const isFunctor: <T>(x: any) => x is FunctorChain<T>;
-declare function functor<T>(x: T): FunctorChain<JarChain<T>>;
+declare type FunctorJarChain<T> = T extends Functor<infer U> ? FunctorJarChain<U> : T extends Jar<infer X> ? FunctorJarChain<X> : Functor<Jar<T>>;
+declare const isFunctor: <T>(x: any) => x is FunctorJarChain<T>;
+declare const functor: <T>(x: T) => FunctorJarChain<T>;
 
 declare const wait: (ms?: number | undefined) => Promise<unknown>;
 

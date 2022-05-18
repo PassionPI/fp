@@ -59,5 +59,21 @@ test("functor nest functor 1", async () => {
   const [err, data] = functor(1).map(add1AndPrefixA).join();
   expect(err).toBe(null);
   expect(data).toBe("A2");
-  // expect(data.join()[1]).toBe("A2");
+});
+
+test("functor nest functor 2", async () => {
+  const [err, data] = functor(add1AndPrefixA(1))
+    .map((x) => x + 1)
+    .join();
+  expect(err).toBe(null);
+  expect(data).toBe("A21");
+});
+
+test("functor nest jar 1", async () => {
+  const jar = add1AndPrefixA(1).join();
+  const [err, data] = functor(jar)
+    .map((x) => x + 1)
+    .join();
+  expect(err).toBe(null);
+  expect(data).toBe("A21");
 });

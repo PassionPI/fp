@@ -73,38 +73,26 @@ const pipeline = (x) => Pipeline.resolve(x).then(...tuples);
 const SIGN = Symbol();
 const TYPE = Symbol();
 const isFunctor = (x) => x && x[SIGN] == TYPE;
-function functor(x) {
-  if (isFunctor(x)) {
+const functor = (x) => {
+  if (isFunctor(x))
     return x;
-  }
-  const callee = functor;
-  if (!isTuple(x)) {
-    return callee(tupleVal(x));
-  }
+  if (!isTuple(x))
+    return functor(tupleVal(x));
+  const [e, v] = x;
+  if (isFunctor(v))
+    return v;
   const safe = (fn, data) => {
     try {
-      return callee(tupleVal(fn(data)));
-    } catch (e) {
-      return callee(tupleErr(e));
+      return functor(tupleVal(fn(data)));
+    } catch (err) {
+      return functor(tupleErr(err));
     }
   };
   const box = create(null);
   box[SIGN] = TYPE;
   box.join = () => x;
-  box.map = (fn) => {
-    const [e, data] = x;
-    if (e) {
-      return box;
-    }
-    return safe(fn, data);
-  };
-  box.ap = (data) => {
-    const [e, fn] = x;
-    if (e) {
-      return box;
-    }
-    return safe(fn, data);
-  };
+  box.map = (fn) => e ? box : safe(fn, v);
+  box.ap = (data) => e ? box : safe(v, data);
   return freeze(box);
-}
+};
 export { asyncCompose, compose, either, functor, interval, isFunctor, lock, pended, pipeline, wait };
