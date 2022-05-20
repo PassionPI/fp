@@ -1,6 +1,6 @@
 {
   "name": "fp-async",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "scripts": {
     "build": "npm run build:check && npm run build:bundle && npm run build:type",

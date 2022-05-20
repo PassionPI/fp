@@ -1,4 +1,4 @@
-# fp-async
+# [fp-async Doc](https://github.com/PassionPI/fp-async#readme)
 
 ## 宗旨
 
