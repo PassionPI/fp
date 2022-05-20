@@ -1,4 +1,4 @@
-import { wait } from "@/index";
+import { either, wait } from "@/index";
 import { expect, test } from "vitest";
 
 const time = 200;
@@ -11,11 +11,7 @@ test("wait time cost", async () => {
 });
 
 test("wait no error", async () => {
-  const errSymbol = Symbol();
-  const [err, result] = await wait(time).then(
-    () => [errSymbol, "ok"],
-    (e) => [e, null]
-  );
-  expect(err).toBe(errSymbol);
-  expect(result).toBe("ok");
+  const [err, result] = await either(wait)(time);
+  expect(err).toBe(null);
+  expect(result).toBeUndefined();
 });

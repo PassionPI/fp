@@ -22,17 +22,17 @@ interface Either {
 }
 ```
 
-It wrap `async` function that returns `Promise<[Error | null, Awaited<ReturnType<typeof fn>>]>`.
-
-- description
+#### description
 
 对传入的异步函数进行自动错误捕获
 
-产生错误 => `[Error, null]`
+产生错误 => `Promise<[Error, null]>`
 
-正常运行 => `[null, Awaited<ReturnType<typeof fn>>]`
+正常运行 => `Promise<[null, Awaited<ReturnType<typeof fn>>]>`
 
-- either example
+默认返回签名 => `Promise<[Error | null, Awaited<ReturnType<typeof fn>>]>`
+
+#### example
 
 ```typescript
 import { either } from "fp-async";
