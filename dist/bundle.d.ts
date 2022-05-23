@@ -1,17 +1,18 @@
 declare type Jar<T> = [Error | null, Awaited<T>];
+declare type JarChain<T> = T extends Jar<infer U> ? JarChainJoin<U> : Jar<T>;
 declare type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
 
 interface Either {
-    <A extends unknown[], R>(fn: (...args: A) => R): <X = R>(...args: A) => Promise<Jar<X>>;
+    <A extends unknown[], R>(fn: (...args: A) => R): (...args: A) => Promise<JarChain<R>>;
 }
 declare const either: Either;
 
 declare const interval: (ms?: number | undefined) => {
-    loop: <X = Promise<void>>(fn: () => void | Promise<void>) => Promise<Jar<X>>;
+    loop: (fn: () => void | Promise<void>) => Promise<Jar<Promise<void>>>;
     stop: () => void;
 };
 
-declare const lock: <A extends unknown[], R>(init?: ((...args: A) => R) | undefined) => <X = R>(...args: A) => Promise<Jar<X>>;
+declare const lock: <A extends unknown[], R>(init?: ((...args: A) => R) | undefined) => (...args: A) => Promise<JarChain<R>>;
 
 declare const pended: <T = unknown, E = unknown>() => {
     resolve: (data?: T | PromiseLike<T> | undefined) => void;
@@ -20,8 +21,10 @@ declare const pended: <T = unknown, E = unknown>() => {
 };
 
 declare type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U> ? PipeChain<JarChainJoin<U>> : Pipeline<T>;
+declare type PipeChainJoin<T> = T extends Pipeline<infer U> | Promise<infer U> ? PipeChainJoin<JarChainJoin<U>> : Awaited<T>;
 declare class Pipeline<X> extends Promise<Jar<X>> {
     pipe<R>(f: (x: X) => R): PipeChain<R>;
+    ap(x: PipeChainJoin<X> extends (...args: any[]) => any ? Parameters<PipeChainJoin<X>>[0] : never): PipeChainJoin<X> extends (...args: any[]) => any ? PipeChain<ReturnType<PipeChainJoin<X>>> : never;
 }
 declare const pipeline: <X>(x?: X | undefined) => PipeChain<X>;
 

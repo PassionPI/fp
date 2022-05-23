@@ -68,19 +68,25 @@ class Pipeline extends Promise {
   pipe(f) {
     return super.then((t) => t[0] ? t : f(t[1])).then(...tuples);
   }
+  ap(x) {
+    return super.then((t) => t[0] ? t : t[1](x)).then(...tuples);
+  }
 }
 const pipeline = (x) => Pipeline.resolve(x).then(...tuples);
 const SIGN = Symbol();
 const TYPE = Symbol();
 const isFunctor = (x) => x && x[SIGN] == TYPE;
 const functor = (x) => {
-  if (isFunctor(x))
+  if (isFunctor(x)) {
     return x;
-  if (!isTuple(x))
+  }
+  if (!isTuple(x)) {
     return functor(tupleVal(x));
+  }
   const [e, v] = x;
-  if (isFunctor(v))
+  if (isFunctor(v)) {
     return v;
+  }
   const safe = (fn, data) => {
     try {
       return functor(tupleVal(fn(data)));

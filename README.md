@@ -9,6 +9,7 @@
 1. 高阶函数,或者有返回值的非高阶函数,返回结果均为`Promise<[Error | null, Awaited<ReturnType<typeof fn>>]>`
 2. 无返回值函数,则返回`void`(视情况返回`Promise<void>`)
 3. 单一性原则,即一个函数只做一件事
+   - 减少泛型使用「泛型应使用在较为通用的集合中」
 
 ## API
 

@@ -26,12 +26,19 @@ export const isFunctor = <T>(x: any): x is FunctorJarChain<T> =>
   x && x[SIGN] == TYPE;
 
 export const functor = <T>(x: T): FunctorJarChain<T> => {
-  if (isFunctor(x)) return x as any;
-  if (!isTuple(x)) return functor(tupleVal(x)) as any;
+  if (isFunctor(x)) {
+    return x as any;
+  }
+
+  if (!isTuple(x)) {
+    return functor(tupleVal(x)) as any;
+  }
 
   const [e, v] = x as any;
 
-  if (isFunctor(v)) return v as any;
+  if (isFunctor(v)) {
+    return v as any;
+  }
 
   const safe = (fn: any, data: any) => {
     try {
