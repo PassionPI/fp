@@ -1,104 +1,110 @@
-const { freeze, create } = Object;
-class Tuple extends Array {
+const { freeze: i, create: b } = Object;
+class a extends Array {
 }
-const isTuple = (x) => x instanceof Tuple;
-const tupleErr = (v) => isTuple(v) ? v[0] ? v : tupleErr() : freeze(Tuple.of(v instanceof Error ? v : Error(typeof v == "object" ? JSON.stringify(v) : String(v)), null));
-const tupleVal = (v) => isTuple(v) ? v : freeze(Tuple.of(null, v));
-const tuples = [tupleVal, tupleErr];
-const either = (fn) => {
-  return new Proxy(fn, {
-    apply(...args) {
-      return Promise.resolve().then(() => Reflect.apply(...args)).then(...tuples);
-    }
-  });
-};
-const wait = (ms) => new Promise((res) => setTimeout(res, ms));
-const interval = (ms) => {
-  let run = true;
-  const stop = () => {
-    run = false;
+const p = (e) => e instanceof a, f = (e) => p(e) ? e[0] ? e : f() : i(
+  a.of(
+    e instanceof Error ? e : Error(typeof e == "object" ? JSON.stringify(e) : String(e)),
+    null
+  )
+), u = (e) => p(e) ? e : i(a.of(null, e)), l = [u, f], y = (e) => new Proxy(e, {
+  apply(...t) {
+    return Promise.resolve().then(() => Reflect.apply(...t)).then(...l);
+  }
+}), h = (e) => new Promise((t) => setTimeout(t, e)), R = (e) => {
+  let t = !0;
+  const n = () => {
+    t = !1;
   };
-  const loop = either(async (fn) => {
-    run = true;
-    await wait(ms);
-    while (run) {
-      await fn();
-      await wait(ms);
-    }
-  });
   return {
-    loop,
-    stop
+    loop: y(async (s) => {
+      for (t = !0, await h(e); t; )
+        await s(), await h(e);
+    }),
+    stop: n
   };
-};
-const compose = (...fns) => (acc) => {
-  for (const fn of fns) {
-    acc = fn(acc);
-  }
-  return acc;
-};
-const asyncCompose = (...fns) => async (acc) => {
-  for (const fn of fns) {
-    acc = fn(await acc);
-  }
-  return acc;
-};
-const _lock = (fn) => {
-  let pending = null;
-  return new Proxy(fn, {
-    async apply(...args) {
-      if (pending == null) {
-        pending = Reflect.apply(...args);
-      }
-      const result = await pending;
-      pending = null;
-      return result;
+}, S = (...e) => (t) => {
+  for (const n of e)
+    t = n(t);
+  return t;
+}, x = (...e) => async (t) => {
+  for (const n of e)
+    t = n(await t);
+  return t;
+}, j = (e) => {
+  let t = null;
+  return new Proxy(e, {
+    async apply(...n) {
+      t == null && (t = Reflect.apply(...n));
+      const r = await t;
+      return t = null, r;
     }
   });
-};
-const lock = compose(_lock, either);
-const pended = () => {
-  let resolve, reject;
-  const pending = new Promise((res, rej) => {
-    [resolve, reject] = [res, rej];
+}, z = S(j, y), E = (e) => {
+  let t = !1, n;
+  return async () => (t || (t = !0, n = await e()), n);
+}, N = (e, t) => (n) => {
+  const r = (s) => {
+    var o;
+    return ((o = e[s]) != null ? o : t)(
+      n,
+      E(() => r(s + 1))
+    );
+  };
+  return r(0);
+}, O = () => {
+  let e, t;
+  const n = new Promise((r, s) => {
+    [e, t] = [r, s];
   });
-  return { resolve, reject, pending };
+  return { resolve: e, reject: t, pending: n };
 };
-class Pipeline extends Promise {
-  pipe(f) {
-    return super.then((t) => t[0] ? t : f(t[1])).then(...tuples);
+class T extends Promise {
+  pipe(t) {
+    return super.then((n) => n[0] ? n : t(n[1])).then(...l);
   }
-  ap(x) {
-    return super.then((t) => t[0] ? t : t[1](x)).then(...tuples);
+  ap(t) {
+    return super.then((n) => n[0] ? n : n[1](t)).then(...l);
   }
 }
-const pipeline = (x) => Pipeline.resolve(x).then(...tuples);
-const SIGN = Symbol();
-const TYPE = Symbol();
-const isFunctor = (x) => x && x[SIGN] == TYPE;
-const functor = (x) => {
-  if (isFunctor(x)) {
-    return x;
-  }
-  if (!isTuple(x)) {
-    return functor(tupleVal(x));
-  }
-  const [e, v] = x;
-  if (isFunctor(v)) {
-    return v;
-  }
-  const safe = (fn, data) => {
+const A = (e) => T.resolve(e).then(...l), d = Symbol(), P = Symbol(), w = (e) => e && e[d] == P, c = (e) => {
+  if (w(e))
+    return e;
+  if (!p(e))
+    return c(u(e));
+  const [t, n] = e;
+  if (w(n))
+    return n;
+  const r = (o, m) => {
     try {
-      return functor(tupleVal(fn(data)));
-    } catch (err) {
-      return functor(tupleErr(err));
+      return c(u(o(m)));
+    } catch (g) {
+      return c(f(g));
+    }
+  }, s = b(null);
+  return s[d] = P, s.join = () => e, s.map = (o) => t ? s : r(o, n), s.ap = (o) => t ? s : r(n, o), i(s);
+}, B = (e) => {
+  const t = /* @__PURE__ */ new Map();
+  return {
+    get(n) {
+      const r = t.get(n);
+      return t.has(n) && (t.delete(n), t.set(n, r)), r;
+    },
+    set(n, r) {
+      t.has(n) && t.delete(n), t.set(n, r), t.size > e && t.delete(t.keys().next().value);
     }
   };
-  const box = create(null);
-  box[SIGN] = TYPE;
-  box.join = () => x;
-  box.map = (fn) => e ? box : safe(fn, v);
-  box.ap = (data) => e ? box : safe(v, data);
-  return freeze(box);
 };
-export { asyncCompose, compose, either, functor, interval, isFunctor, lock, pended, pipeline, wait };
+export {
+  B as LRU,
+  x as asyncPipe,
+  y as either,
+  c as functor,
+  R as interval,
+  w as isFunctor,
+  z as lock,
+  N as oni,
+  O as pended,
+  S as pipe,
+  A as pipeline,
+  h as wait
+};

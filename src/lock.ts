@@ -1,5 +1,5 @@
 import { either } from "./either";
-import { compose } from "./utils/compose";
+import { pipe } from "./sync/pipe";
 
 const _lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
   let pending: Promise<R> | null = null;
@@ -15,4 +15,4 @@ const _lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
   });
 };
 
-export const lock = compose(_lock, either);
+export const lock = pipe(_lock, either);
