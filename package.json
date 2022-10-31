@@ -1,11 +1,12 @@
 {
   "name": "fp-async",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "",
   "scripts": {
+    "check": "tsc --noEmit",
     "build": "npm run build:check && npm run build:bundle && npm run build:type",
     "build:bundle": "vite build",
-    "build:check": "npm run test:run && tsc --noEmit",
+    "build:check": "npm run test:run && npm run check",
     "build:type": "rm -rf ./types && tsc -p ./types.json && rollup -c rollup.config.ts",
     "debug:file": "tsx",
     "test:dev": "vitest",

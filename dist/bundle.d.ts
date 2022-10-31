@@ -1,18 +1,31 @@
 declare type Jar<T> = [Error | null, Awaited<T>];
-declare type JarChain<T> = T extends Jar<infer U> ? JarChainJoin<U> : Jar<T>;
+declare type JarChain<T> = Jar<JarChainJoin<T>>;
 declare type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
 
 declare type Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
 declare const either: Either;
 
-declare const interval: (ms?: number | undefined) => {
-    loop: (fn: () => void | Promise<void>) => Promise<Jar<Promise<void>>>;
+declare const _: unique symbol;
+declare type __ = typeof _;
+interface CurriedFunction1<T1, R> {
+    (): CurriedFunction1<T1, R>;
+    (t1: T1): R;
+}
+interface CurriedFunction2<T1, T2, R> {
+    (): CurriedFunction2<T1, T2, R>;
+    (t1: T1): CurriedFunction1<T2, R>;
+    (t1: __, t2: T2): CurriedFunction1<T1, R>;
+    (t1: T1, t2: T2): R;
+}
+
+declare const interval: CurriedFunction2<number, () => void | Promise<void>, {
+    loop: () => Promise<JarChain<Promise<void>>>;
     stop: () => void;
-};
+}>;
 
 declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
 
-declare type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R>;
+declare type Unit<T, R> = (ctx: T, next: () => Promise<R>) => R | Promise<R>;
 declare const oni: <Ctx, Resp>(fns: Unit<Ctx, Resp>[], end: () => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
 
 declare const pended: <T = unknown, E = unknown>() => {
@@ -87,6 +100,6 @@ interface AsyncPipe {
 declare const pipe: Pipe;
 declare const asyncPipe: AsyncPipe;
 
-declare const wait: (ms?: number | undefined) => Promise<unknown>;
+declare const wait: (ms?: number) => Promise<unknown>;
 
 export { AsyncPipe, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, asyncPipe, either, functor, interval, isFunctor, lock, oni, pended, pipe, pipeline, wait };

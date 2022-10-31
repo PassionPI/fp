@@ -6,7 +6,7 @@ const _lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
   return new Proxy(fn, {
     async apply(...args) {
       if (pending == null) {
-        pending = Reflect.apply(...args);
+        pending = Promise.resolve(Reflect.apply(...args));
       }
       const result = await pending;
       pending = null;

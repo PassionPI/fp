@@ -1,1 +1,1 @@
-export declare const wait: (ms?: number | undefined) => Promise<unknown>;
+export declare const wait: (ms?: number) => Promise<unknown>;

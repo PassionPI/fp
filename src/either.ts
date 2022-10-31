@@ -1,4 +1,4 @@
-import { JarChain, tuples } from "./utils/tuple";
+import { JarChain, tupleErr, tupleVal } from "./utils/tuple";
 
 export type Either = <A extends unknown[], R>(
   fn: (...args: A) => R
@@ -6,10 +6,12 @@ export type Either = <A extends unknown[], R>(
 
 export const either: Either = (fn) => {
   return new Proxy(fn, {
-    apply(...args) {
-      return Promise.resolve()
-        .then(() => Reflect.apply(...args))
-        .then(...tuples) as any;
+    async apply(...args) {
+      try {
+        return tupleVal(await Reflect.apply(...args));
+      } catch (e) {
+        return tupleErr(e);
+      }
     },
   }) as any;
 };
