@@ -1,10 +1,9 @@
 export declare const freeze: {
-    <T>(a: T[]): readonly T[];
-    <T_1 extends Function>(f: T_1): T_1;
-    <T_2 extends {
+    <T extends Function>(f: T): T;
+    <T_1 extends {
         [idx: string]: object | U | null | undefined;
-    }, U extends string | number | bigint | boolean | symbol>(o: T_2): Readonly<T_2>;
-    <T_3>(o: T_3): Readonly<T_3>;
+    }, U extends string | number | bigint | boolean | symbol>(o: T_1): Readonly<T_1>;
+    <T_2>(o: T_2): Readonly<T_2>;
 }, create: {
     (o: object | null): any;
     (o: object | null, properties: PropertyDescriptorMap & ThisType<any>): any;

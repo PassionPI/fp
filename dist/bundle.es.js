@@ -1,15 +1,15 @@
 const { freeze: f, create: j } = Object;
-class y extends Array {
+class h extends Array {
 }
-const h = (e) => e instanceof y, u = (e) => h(e) ? e[0] ? e : u() : f(
-  y.of(
+const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
+  h.of(
     e instanceof Error ? e : Error(typeof e == "object" ? JSON.stringify(e) : String(e)),
     null
   )
-), l = (e) => h(e) ? e : f(y.of(null, e)), p = [l, u], P = (e) => new Proxy(e, {
+), c = (e) => y(e) ? e : f(h.of(null, e)), p = [c, u], P = (e) => new Proxy(e, {
   async apply(...t) {
     try {
-      return l(await Reflect.apply(...t));
+      return c(await Reflect.apply(...t));
     } catch (n) {
       return u(n);
     }
@@ -25,8 +25,8 @@ const h = (e) => e instanceof y, u = (e) => h(e) ? e[0] ? e : u() : f(
 }, E = (e) => (t) => {
   const n = (r) => new Proxy(t, {
     apply(s, o, i) {
-      const c = b(r, i).slice(0, e);
-      return c.length === e && !c.includes(m) ? Reflect.apply(s, o, c) : n(c);
+      const l = b(r, i).slice(0, e);
+      return l.length === e && !l.includes(m) ? Reflect.apply(s, o, l) : n(l);
     }
   });
   return n([]);
@@ -61,7 +61,7 @@ const h = (e) => e instanceof y, u = (e) => h(e) ? e[0] ? e : u() : f(
   });
 }, A = T(x, P), z = (e) => {
   let t = !1, n;
-  return async () => (t || (t = !0, n = await e()), n);
+  return () => (t || (t = !0, n = e()), n);
 }, B = (e, t) => (n) => {
   const r = (s) => {
     var o;
@@ -91,16 +91,16 @@ class N extends Promise {
 const F = (e) => N.resolve(e).then(...p), g = Symbol(), S = Symbol(), d = (e) => e && e[g] == S, a = (e) => {
   if (d(e))
     return e;
-  if (!h(e))
-    return a(l(e));
+  if (!y(e))
+    return a(c(e));
   const [t, n] = e;
   if (d(n))
     return n;
   const r = (o, i) => {
     try {
-      return a(l(o(i)));
-    } catch (c) {
-      return a(u(c));
+      return a(c(o(i)));
+    } catch (l) {
+      return a(u(l));
     }
   }, s = j(null);
   return s[g] = S, s.join = () => e, s.map = (o) => t ? s : r(o, n), s.ap = (o) => t ? s : r(n, o), f(s);

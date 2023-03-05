@@ -1,19 +1,9 @@
+import { once } from "./utils/once";
+
 type Unit<T, R> = (ctx: T, next: () => Promise<R>) => R | Promise<R>;
 
-const once = <T>(fn: () => Promise<T>) => {
-  let done = false;
-  let result: T;
-  return async () => {
-    if (!done) {
-      done = true;
-      result = await fn();
-    }
-    return result;
-  };
-};
-
 export const oni =
-  <Ctx, Resp>(fns: Array<Unit<Ctx, Resp>>, end: () => Promise<Resp>) =>
+  <Ctx, Resp>(fns: Array<Unit<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) =>
   (ctx: Ctx) => {
     const next = (i: number): Promise<Resp> =>
       Promise.resolve(

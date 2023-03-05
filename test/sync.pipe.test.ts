@@ -1,4 +1,4 @@
-import { asyncPipe } from "@/sync/pipe";
+import { asyncPipe } from "@/index";
 import { expect, test } from "vitest";
 
 test("asyncPipe", async () => {

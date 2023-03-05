@@ -1,4 +1,4 @@
-import { functor, isFunctor } from "@/sync/functor";
+import { functor, isFunctor } from "@/index";
 import { add } from "rambda";
 import { expect, test } from "vitest";
 

@@ -36,6 +36,14 @@ describe.concurrent("lock", async () => {
     expect(data).toEqual([MSG, 2]);
   });
 
+  test("call step2 2", async () => {
+    await wait(time);
+    await wait(time / 2);
+    const [err, data] = await wrap();
+    expect(err).toBe(null);
+    expect(data).toEqual([MSG, 2]);
+  });
+
   test("call step2 end", async () => {
     await wait(time * 2);
     expect(count).toBe(2);
