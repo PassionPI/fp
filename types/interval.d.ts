@@ -1,4 +1,4 @@
-export declare const interval: (ms?: number | undefined) => {
-    loop: (fn: () => void | Promise<void>) => Promise<import("./utils/tuple").Jar<Promise<void>>>;
+export declare const interval: import("./utils/curry").CurriedFunction2<number, () => void | Promise<void>, {
+    loop: () => Promise<import("./utils/tuple").JarChain<Promise<void>>>;
     stop: () => void;
-};
+}>;

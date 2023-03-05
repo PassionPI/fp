@@ -1,62 +1,4 @@
-declare type Jar<T> = [Error | null, Awaited<T>];
-declare type JarChain<T> = Jar<JarChainJoin<T>>;
-declare type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
-
-declare type Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
-declare const either: Either;
-
-declare const _: unique symbol;
-declare type __ = typeof _;
-interface CurriedFunction1<T1, R> {
-    (): CurriedFunction1<T1, R>;
-    (t1: T1): R;
-}
-interface CurriedFunction2<T1, T2, R> {
-    (): CurriedFunction2<T1, T2, R>;
-    (t1: T1): CurriedFunction1<T2, R>;
-    (t1: __, t2: T2): CurriedFunction1<T1, R>;
-    (t1: T1, t2: T2): R;
-}
-
-declare const interval: CurriedFunction2<number, () => void | Promise<void>, {
-    loop: () => Promise<JarChain<Promise<void>>>;
-    stop: () => void;
-}>;
-
-declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
-
-declare type Unit<T, R> = (ctx: T, next: () => Promise<R>) => R | Promise<R>;
-declare const oni: <Ctx, Resp>(fns: Unit<Ctx, Resp>[], end: () => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
-
-declare const pended: <T = unknown, E = unknown>() => {
-    resolve: (data?: T | PromiseLike<T> | undefined) => void;
-    reject: (msg?: E | undefined) => void;
-    pending: Promise<T>;
-};
-
-declare type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarChainJoin<U>> : BasePipeline<T>;
-declare type PipeChainJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipeChainJoin<JarChainJoin<U>> : Awaited<T>;
-declare class BasePipeline<X> extends Promise<Jar<X>> {
-    pipe<R>(f: (x: X) => R): Pipeline<R>;
-    ap(x: PipeChainJoin<X> extends (...args: any[]) => any ? Parameters<PipeChainJoin<X>>[0] : never): PipeChainJoin<X> extends (...args: any[]) => any ? Pipeline<ReturnType<PipeChainJoin<X>>> : never;
-}
-declare const pipeline: <X>(x?: X | undefined) => Pipeline<X>;
-
-declare type Functor<T extends unknown> = {
-    ap(x: JarChainJoin<T> extends (...args: any[]) => any ? Parameters<JarChainJoin<T>>[0] : never): JarChainJoin<T> extends (...args: any[]) => any ? FunctorJarChain<ReturnType<JarChainJoin<T>>> : never;
-    map<R>(f: (x: JarChainJoin<T>) => R): FunctorJarChain<R>;
-    join(): T;
-};
-declare type FunctorJarChain<T> = T extends Functor<infer U> ? FunctorJarChain<U> : T extends Jar<infer X> ? FunctorJarChain<X> : Functor<Jar<T>>;
-declare const isFunctor: <T>(x: any) => x is FunctorJarChain<T>;
-declare const functor: <T>(x: T) => FunctorJarChain<T>;
-
-declare const LRU: <K, V>(size: number) => {
-    get(key: K): V | undefined;
-    set(key: K, value: V): void;
-};
-
-interface Pipe {
+export interface Pipe {
     <R, T1 = void>(fn1: (t1: T1) => R): (init: T1) => R;
     <R, T1 = void, T2 = void>(fn1: (t1: T1) => T2, fn2: (t2: T2) => R): (init: T1) => R;
     <R, T1 = void, T2 = void, T3 = void>(fn1: (t1: T1) => T2, fn2: (t2: T2) => T3, fn3: (t3: T3) => R): (init: T1) => R;
@@ -79,7 +21,7 @@ declare type Init<T> = Out<T> | Result<T>;
 declare type Chain<T> = T;
 declare type Result<T> = Promise<Out<T>>;
 declare type ResultFn<T, R> = (init: Init<T>) => Result<R>;
-interface AsyncPipe {
+export interface AsyncPipe {
     <R, T1 = void>(fn1: (t1: Out<T1>) => Chain<R>): ResultFn<T1, R>;
     <R, T1 = void, T2 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<R>): ResultFn<T1, R>;
     <R, T1 = void, T2 = void, T3 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<T3>, fn3: (t3: Out<T3>) => Chain<R>): ResultFn<T1, R>;
@@ -97,9 +39,6 @@ interface AsyncPipe {
     <R, T1 = void, T2 = void, T3 = void, T4 = void, T5 = void, T6 = void, T7 = void, T8 = void, T9 = void, T10 = void, T11 = void, T12 = void, T13 = void, T14 = void, T15 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<T3>, fn3: (t3: Out<T3>) => Chain<T4>, fn4: (t4: Out<T4>) => Chain<T5>, fn5: (t5: Out<T5>) => Chain<T6>, fn6: (t6: Out<T6>) => Chain<T7>, fn7: (t7: Out<T7>) => Chain<T8>, fn8: (t8: Out<T8>) => Chain<T9>, fn9: (t9: Out<T9>) => Chain<T10>, fn10: (t10: Out<T10>) => Chain<T11>, fn11: (t11: Out<T11>) => Chain<T12>, fn12: (t12: Out<T12>) => Chain<T13>, fn13: (t13: Out<T13>) => Chain<T14>, fn14: (t14: Out<T14>) => Chain<T15>, fn15: (t15: Out<T15>) => Chain<R>): ResultFn<T1, R>;
     <R, T1 = void, T2 = void, T3 = void, T4 = void, T5 = void, T6 = void, T7 = void, T8 = void, T9 = void, T10 = void, T11 = void, T12 = void, T13 = void, T14 = void, T15 = void, T16 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<T3>, fn3: (t3: Out<T3>) => Chain<T4>, fn4: (t4: Out<T4>) => Chain<T5>, fn5: (t5: Out<T5>) => Chain<T6>, fn6: (t6: Out<T6>) => Chain<T7>, fn7: (t7: Out<T7>) => Chain<T8>, fn8: (t8: Out<T8>) => Chain<T9>, fn9: (t9: Out<T9>) => Chain<T10>, fn10: (t10: Out<T10>) => Chain<T11>, fn11: (t11: Out<T11>) => Chain<T12>, fn12: (t12: Out<T12>) => Chain<T13>, fn13: (t13: Out<T13>) => Chain<T14>, fn14: (t14: Out<T14>) => Chain<T15>, fn15: (t15: Out<T15>) => Chain<T16>, fn16: (t16: Out<T16>) => Chain<R>): ResultFn<T1, R>;
 }
-declare const pipe: Pipe;
-declare const asyncPipe: AsyncPipe;
-
-declare const wait: (ms?: number) => Promise<unknown>;
-
-export { AsyncPipe, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, asyncPipe, either, functor, interval, isFunctor, lock, oni, pended, pipe, pipeline, wait };
+export declare const pipe: Pipe;
+export declare const asyncPipe: AsyncPipe;
+export {};

@@ -1,5 +1,5 @@
-import { create, freeze } from "./object";
-import { isTuple, Jar, JarChainJoin, tupleErr, tupleVal } from "./tuple";
+import { create, freeze } from "../utils/object";
+import { isTuple, Jar, JarChainJoin, tupleErr, tupleVal } from "../utils/tuple";
 
 type Functor<T extends unknown> = {
   ap(
@@ -31,7 +31,7 @@ export const functor = <T>(x: T): FunctorJarChain<T> => {
   }
 
   if (!isTuple(x)) {
-    return functor(tupleVal(x)) as any;
+    return functor(tupleVal(x));
   }
 
   const [e, v] = x as any;
@@ -56,3 +56,5 @@ export const functor = <T>(x: T): FunctorJarChain<T> => {
 
   return freeze(box);
 };
+
+export type { FunctorJarChain as Functor };

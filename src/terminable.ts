@@ -1,30 +1,19 @@
-import { pended } from "./pended";
+import { either } from "./either";
 
 export const terminable = <A extends unknown[], R>(
   fn: (...args: A) => Promise<R>
 ) => {
+  const call = either(fn);
   return (...args: A) => {
-    const { resolve, reject, pending } = pended<R>();
+    const { abort, signal } = new AbortController();
 
-    const controller = new AbortController();
-    const { abort, signal } = controller;
-
-    const onAbort = () => {
-      reject("Manual abort!");
-      remove();
-    };
-    const remove = () => signal.removeEventListener("abort", onAbort);
+    const onAbort = (): void => signal.removeEventListener("abort", onAbort);
 
     signal.addEventListener("abort", onAbort);
 
-    Promise.resolve()
-      .then(() => fn(...args))
-      .then(resolve, reject)
-      .then(remove);
-
     return {
       abort,
-      pending,
+      pending: call(...args),
     };
   };
 };
