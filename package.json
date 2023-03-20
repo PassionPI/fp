@@ -7,7 +7,7 @@
     "build": "npm run build:check && npm run build:bundle && npm run build:type",
     "build:bundle": "vite build",
     "build:check": "npm run test:cov && npm run check",
-    "build:type": "rm -rf ./types && tsc -p ./types.json && rollup -c rollup.config.ts",
+    "build:type": "rm -rf ./types && tsc -p ./types.json && rollup -c rollup.config.mjs",
     "debug:file": "tsx",
     "test:dev": "vitest",
     "test:run": "vitest run",
@@ -26,11 +26,11 @@
   "devDependencies": {
     "@vitest/coverage-c8": "^0.29.2",
     "rambda": "^7.1.4",
-    "rollup": "^2.70.2",
-    "rollup-plugin-dts": "^4.2.1",
+    "rollup": "^3",
+    "rollup-plugin-dts": "^5",
     "tsx": "^3.8.2",
-    "typescript": "^4.6.3",
-    "vite": "^3.0.0",
+    "typescript": "^5",
+    "vite": "^4",
     "vitest": "^0.29.0"
   },
   "files": [

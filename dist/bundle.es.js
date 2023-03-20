@@ -63,15 +63,12 @@ const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
   let t = !1, n;
   return () => (t || (t = !0, n = e()), n);
 }, B = (e, t) => (n) => {
-  const r = (s) => {
-    var o;
-    return Promise.resolve(
-      ((o = e[s]) != null ? o : t)(
-        n,
-        z(() => r(s + 1))
-      )
-    );
-  };
+  const r = (s) => Promise.resolve(
+    (e[s] ?? t)(
+      n,
+      z(() => r(s + 1))
+    )
+  );
   return r(0);
 }, C = () => {
   let e, t;
