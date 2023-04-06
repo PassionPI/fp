@@ -1,10 +1,10 @@
-export const once = <T>(fn: () => T) => {
+export const once = <A extends unknown[], T>(fn: (...args: A) => T) => {
   let done = false;
   let result: T;
-  return () => {
+  return (...args: A) => {
     if (!done) {
       done = true;
-      result = fn();
+      result = fn(...args);
     }
     return result;
   };

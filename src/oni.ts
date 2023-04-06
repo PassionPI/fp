@@ -1,16 +1,22 @@
 import { once } from "./utils/once";
 
-type Unit<T, R> = (ctx: T, next: () => Promise<R>) => R | Promise<R>;
+export type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
 
-export const oni =
-  <Ctx, Resp>(fns: Array<Unit<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) =>
-  (ctx: Ctx) => {
-    const next = (i: number): Promise<Resp> =>
-      Promise.resolve(
-        (fns[i] ?? end)(
+export const oni = <Ctx, Resp>(
+  fns: Array<Unit<Ctx, Resp>>,
+  end: (ctx: Ctx) => Promise<Resp>
+) => {
+  const len = fns?.length ?? 0;
+  return (ctx: Ctx) => {
+    const next = async (i: number): Promise<Resp> => {
+      if (i < len) {
+        return await fns[i](
           ctx,
           once(() => next(i + 1))
-        )
-      );
+        );
+      }
+      return await end(ctx);
+    };
     return next(0);
   };
+};

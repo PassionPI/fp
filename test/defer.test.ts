@@ -1,10 +1,10 @@
-import { pended, wait } from "@/index";
+import { defer, wait } from "@/index";
 import { describe, expect, test } from "vitest";
 
 const time = 200;
 
-describe.concurrent("pended resolve", async () => {
-  const { pending, resolve } = pended();
+describe.concurrent("defer resolve", async () => {
+  const { pending, resolve } = defer();
   test("await pending resolve", async () => {
     let t1 = Date.now().valueOf();
     await pending;
@@ -17,8 +17,8 @@ describe.concurrent("pended resolve", async () => {
   });
 });
 
-describe.concurrent("pended reject", async () => {
-  const { pending, reject } = pended();
+describe.concurrent("defer reject", async () => {
+  const { pending, reject } = defer();
   test.fails("await pending reject", async () => {
     await pending;
   });
