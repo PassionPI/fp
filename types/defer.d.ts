@@ -1,5 +1,6 @@
-export declare const defer: <T = unknown, E = unknown>() => {
-    resolve: (data?: T | PromiseLike<T> | undefined) => void;
+export declare const defer: <T = void, E = unknown>() => {
+    resolve: (data: T | PromiseLike<T>) => void;
     reject: (msg?: E | undefined) => void;
-    pending: Promise<T>;
+    pending: Promise<import("./utils/tuple").JarChain<Promise<T>>>;
 };
+export type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;

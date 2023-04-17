@@ -1,6 +1,6 @@
 {
   "name": "ufp",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "",
   "type": "module",
   "scripts": {
@@ -39,7 +39,7 @@
     "README.md",
     "CHANGELOG.md"
   ],
-  "main": "./dist/bundle.cjs.js",
+  "main": "./dist/bundle.es.js",
   "module": "./dist/bundle.es.js",
   "types": "./dist/bundle.d.ts",
   "exports": {

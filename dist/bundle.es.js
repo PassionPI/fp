@@ -1,10 +1,4 @@
-const O = () => {
-  let e, t;
-  const n = new Promise((r, o) => {
-    [e, t] = [r, o];
-  });
-  return { resolve: e, reject: t, pending: n };
-}, { freeze: f, create: j } = Object;
+const { freeze: f, create: j } = Object;
 class h extends Array {
 }
 const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
@@ -12,7 +6,7 @@ const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
     e instanceof Error ? e : Error(typeof e == "object" ? JSON.stringify(e) : String(e)),
     null
   )
-), c = (e) => y(e) ? e : f(h.of(null, e)), p = [c, u], g = (e) => new Proxy(e, {
+), c = (e) => y(e) ? e : f(h.of(null, e)), p = [c, u], w = (e) => new Proxy(e, {
   async apply(...t) {
     try {
       return c(await Reflect.apply(...t));
@@ -20,7 +14,13 @@ const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
       return u(n);
     }
   }
-}), P = Symbol(), b = (e, t) => {
+}), O = () => {
+  let e, t;
+  const n = new Promise((r, o) => {
+    [e, t] = [r, o];
+  });
+  return { resolve: e, reject: t, pending: w(() => n)() };
+}, P = Symbol(), b = (e, t) => {
   const n = [];
   let r = -1, o = -1;
   for (; ++r < e.length; )
@@ -36,15 +36,15 @@ const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
     }
   });
   return n([]);
-}, R = E(2), w = (e) => new Promise((t) => setTimeout(t, e)), _ = R((e, t) => {
+}, R = E(2), d = (e) => new Promise((t) => setTimeout(t, e)), _ = R((e, t) => {
   let n = !0;
   const r = () => {
     n = !1;
   };
   return {
-    loop: g(async () => {
-      for (n = !0, await w(e); n; )
-        await t(), await w(e);
+    loop: w(async () => {
+      for (n = !0, await d(e); n; )
+        await t(), await d(e);
     }),
     stop: r
   };
@@ -65,7 +65,7 @@ const y = (e) => e instanceof h, u = (e) => y(e) ? e[0] ? e : u() : f(
       return t = null, r;
     }
   });
-}, B = T(x, g), z = (e) => {
+}, B = T(x, w), z = (e) => {
   let t = !1, n;
   return (...r) => (t || (t = !0, n = e(...r)), n);
 }, C = (e, t) => {
@@ -86,13 +86,13 @@ class N extends Promise {
     return super.then((n) => n[0] ? n : n[1](t)).then(...p);
   }
 }
-const F = (e) => N.resolve(e).then(...p), m = Symbol(), S = Symbol(), d = (e) => e && e[m] == S, a = (e) => {
-  if (d(e))
+const F = (e) => N.resolve(e).then(...p), m = Symbol(), S = Symbol(), g = (e) => e && e[m] == S, a = (e) => {
+  if (g(e))
     return e;
   if (!y(e))
     return a(c(e));
   const [t, n] = e;
-  if (d(n))
+  if (g(n))
     return n;
   const r = (s, i) => {
     try {
@@ -118,13 +118,13 @@ export {
   G as LRU,
   A as asyncPipe,
   O as defer,
-  g as either,
+  w as either,
   a as functor,
   _ as interval,
-  d as isFunctor,
+  g as isFunctor,
   B as lock,
   C as oni,
   T as pipe,
   F as pipeline,
-  w as wait
+  d as wait
 };

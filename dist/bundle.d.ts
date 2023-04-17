@@ -1,12 +1,13 @@
-declare const defer: <T = unknown, E = unknown>() => {
-    resolve: (data?: T | PromiseLike<T> | undefined) => void;
-    reject: (msg?: E | undefined) => void;
-    pending: Promise<T>;
-};
-
 type Jar<T> = [Error | null, Awaited<T>];
 type JarChain<T> = Jar<JarChainJoin<T>>;
 type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
+
+declare const defer: <T = void, E = unknown>() => {
+    resolve: (data: T | PromiseLike<T>) => void;
+    reject: (msg?: E | undefined) => void;
+    pending: Promise<JarChain<Promise<T>>>;
+};
+type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;
 
 type Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
 declare const either: Either;
@@ -102,4 +103,4 @@ declare const asyncPipe: AsyncPipe;
 
 declare const wait: (ms?: number) => Promise<unknown>;
 
-export { AsyncPipe, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, Unit, asyncPipe, defer, either, functor, interval, isFunctor, lock, oni, pipe, pipeline, wait };
+export { AsyncPipe, Defer, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, Unit, asyncPipe, defer, either, functor, interval, isFunctor, lock, oni, pipe, pipeline, wait };
