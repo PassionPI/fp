@@ -1,3 +1,9 @@
+declare const defer: <T = unknown, E = unknown>() => {
+    resolve: (data?: T | PromiseLike<T> | undefined) => void;
+    reject: (msg?: E | undefined) => void;
+    pending: Promise<T>;
+};
+
 type Jar<T> = [Error | null, Awaited<T>];
 type JarChain<T> = Jar<JarChainJoin<T>>;
 type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
@@ -25,14 +31,8 @@ declare const interval: CurriedFunction2<number, () => void | Promise<void>, {
 
 declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
 
-type Unit<T, R> = (ctx: T, next: () => Promise<R>) => R | Promise<R>;
+type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
 declare const oni: <Ctx, Resp>(fns: Unit<Ctx, Resp>[], end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
-
-declare const pended: <T = unknown, E = unknown>() => {
-    resolve: (data?: T | PromiseLike<T> | undefined) => void;
-    reject: (msg?: E | undefined) => void;
-    pending: Promise<T>;
-};
 
 type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarChainJoin<U>> : BasePipeline<T>;
 type PipeChainJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipeChainJoin<JarChainJoin<U>> : Awaited<T>;
@@ -102,4 +102,4 @@ declare const asyncPipe: AsyncPipe;
 
 declare const wait: (ms?: number) => Promise<unknown>;
 
-export { AsyncPipe, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, asyncPipe, either, functor, interval, isFunctor, lock, oni, pended, pipe, pipeline, wait };
+export { AsyncPipe, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, Unit, asyncPipe, defer, either, functor, interval, isFunctor, lock, oni, pipe, pipeline, wait };

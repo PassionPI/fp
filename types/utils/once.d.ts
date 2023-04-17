@@ -1,1 +1,1 @@
-export declare const once: <T>(fn: () => T) => () => T;
+export declare const once: <A extends unknown[], T>(fn: (...args: A) => T) => (...args: A) => T;
