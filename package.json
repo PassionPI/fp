@@ -45,7 +45,7 @@
   "exports": {
     ".": {
       "import": "./dist/bundle.es.js",
-      "require": "./dist/bundle.cjs.js",
+      "require": "./dist/bundle.cjs",
       "default": "./dist/bundle.es.js",
       "types": "./dist/bundle.d.ts"
     }
