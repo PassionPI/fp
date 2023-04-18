@@ -7,7 +7,7 @@ describe.concurrent("defer resolve", async () => {
   const { pending, resolve } = defer<void>();
   test("await pending resolve", async () => {
     let t1 = Date.now().valueOf();
-    await pending;
+    await pending();
     let t2 = Date.now().valueOf();
     expect(t2 - t1).gte(time);
   });

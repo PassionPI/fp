@@ -40,5 +40,5 @@ export interface AsyncPipe {
     <R, T1 = void, T2 = void, T3 = void, T4 = void, T5 = void, T6 = void, T7 = void, T8 = void, T9 = void, T10 = void, T11 = void, T12 = void, T13 = void, T14 = void, T15 = void, T16 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<T3>, fn3: (t3: Out<T3>) => Chain<T4>, fn4: (t4: Out<T4>) => Chain<T5>, fn5: (t5: Out<T5>) => Chain<T6>, fn6: (t6: Out<T6>) => Chain<T7>, fn7: (t7: Out<T7>) => Chain<T8>, fn8: (t8: Out<T8>) => Chain<T9>, fn9: (t9: Out<T9>) => Chain<T10>, fn10: (t10: Out<T10>) => Chain<T11>, fn11: (t11: Out<T11>) => Chain<T12>, fn12: (t12: Out<T12>) => Chain<T13>, fn13: (t13: Out<T13>) => Chain<T14>, fn14: (t14: Out<T14>) => Chain<T15>, fn15: (t15: Out<T15>) => Chain<T16>, fn16: (t16: Out<T16>) => Chain<R>): ResultFn<T1, R>;
 }
 export declare const pipe: Pipe;
-export declare const asyncPipe: AsyncPipe;
+export declare const async_pipe: AsyncPipe;
 export {};

@@ -1,3 +1,23 @@
+/**
+ *
+ * @description 并发控制函数
+ *
+ * 1、是否有空闲
+ * 2、数量池
+ * 3、排队等待
+ */
+type Task<T> = () => Promise<T>;
+declare class Concurrent {
+    #private;
+    static of(...args: ConstructorParameters<typeof Concurrent>): Concurrent;
+    constructor(config?: {
+        max_concurrency?: number;
+    });
+    add: <T>(task: Task<T>) => Promise<T>;
+    busy: () => boolean;
+    clear: () => void;
+}
+
 type Jar<T> = [Error | null, Awaited<T>];
 type JarChain<T> = Jar<JarChainJoin<T>>;
 type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
@@ -5,30 +25,16 @@ type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
 declare const defer: <T = void, E = unknown>() => {
     resolve: (data: T | PromiseLike<T>) => void;
     reject: (msg?: E | undefined) => void;
-    pending: Promise<JarChain<Promise<T>>>;
+    pending: (() => Promise<JarChain<Promise<T>>>) & {
+        unwrap: () => Promise<T>;
+    };
 };
 type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;
 
-type Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
-declare const either: Either;
-
-declare const _: unique symbol;
-type __ = typeof _;
-interface CurriedFunction1<T1, R> {
-    (): CurriedFunction1<T1, R>;
-    (t1: T1): R;
-}
-interface CurriedFunction2<T1, T2, R> {
-    (): CurriedFunction2<T1, T2, R>;
-    (t1: T1): CurriedFunction1<T2, R>;
-    (t1: __, t2: T2): CurriedFunction1<T1, R>;
-    (t1: T1, t2: T2): R;
-}
-
-declare const interval: CurriedFunction2<number, () => void | Promise<void>, {
-    loop: () => Promise<JarChain<Promise<void>>>;
-    stop: () => void;
-}>;
+type _Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
+declare const either: _Either;
+type EitherFn<A extends unknown[], R> = ReturnType<typeof either<A, R>>;
+type Either<R> = Promise<JarChain<R>>;
 
 declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
 
@@ -42,15 +48,6 @@ declare class BasePipeline<X> extends Promise<Jar<X>> {
     ap(x: PipeChainJoin<X> extends (...args: any[]) => any ? Parameters<PipeChainJoin<X>>[0] : never): PipeChainJoin<X> extends (...args: any[]) => any ? Pipeline<ReturnType<PipeChainJoin<X>>> : never;
 }
 declare const pipeline: <X>(x?: X | undefined) => Pipeline<X>;
-
-type Functor<T extends unknown> = {
-    ap(x: JarChainJoin<T> extends (...args: any[]) => any ? Parameters<JarChainJoin<T>>[0] : never): JarChainJoin<T> extends (...args: any[]) => any ? FunctorJarChain<ReturnType<JarChainJoin<T>>> : never;
-    map<R>(f: (x: JarChainJoin<T>) => R): FunctorJarChain<R>;
-    join(): T;
-};
-type FunctorJarChain<T> = T extends Functor<infer U> ? FunctorJarChain<U> : T extends Jar<infer X> ? FunctorJarChain<X> : Functor<Jar<T>>;
-declare const isFunctor: <T>(x: any) => x is FunctorJarChain<T>;
-declare const functor: <T>(x: T) => FunctorJarChain<T>;
 
 declare const LRU: <K, V>(size: number) => {
     get(key: K): V | undefined;
@@ -99,8 +96,8 @@ interface AsyncPipe {
     <R, T1 = void, T2 = void, T3 = void, T4 = void, T5 = void, T6 = void, T7 = void, T8 = void, T9 = void, T10 = void, T11 = void, T12 = void, T13 = void, T14 = void, T15 = void, T16 = void>(fn1: (t1: Out<T1>) => Chain<T2>, fn2: (t2: Out<T2>) => Chain<T3>, fn3: (t3: Out<T3>) => Chain<T4>, fn4: (t4: Out<T4>) => Chain<T5>, fn5: (t5: Out<T5>) => Chain<T6>, fn6: (t6: Out<T6>) => Chain<T7>, fn7: (t7: Out<T7>) => Chain<T8>, fn8: (t8: Out<T8>) => Chain<T9>, fn9: (t9: Out<T9>) => Chain<T10>, fn10: (t10: Out<T10>) => Chain<T11>, fn11: (t11: Out<T11>) => Chain<T12>, fn12: (t12: Out<T12>) => Chain<T13>, fn13: (t13: Out<T13>) => Chain<T14>, fn14: (t14: Out<T14>) => Chain<T15>, fn15: (t15: Out<T15>) => Chain<T16>, fn16: (t16: Out<T16>) => Chain<R>): ResultFn<T1, R>;
 }
 declare const pipe: Pipe;
-declare const asyncPipe: AsyncPipe;
+declare const async_pipe: AsyncPipe;
 
 declare const wait: (ms?: number) => Promise<unknown>;
 
-export { AsyncPipe, Defer, Either, FunctorJarChain as Functor, LRU, Pipe, Pipeline, Unit, asyncPipe, defer, either, functor, interval, isFunctor, lock, oni, pipe, pipeline, wait };
+export { AsyncPipe, Concurrent, Defer, Either, EitherFn, LRU, Pipe, Pipeline, Unit, async_pipe, defer, either, lock, oni, pipe, pipeline, wait };

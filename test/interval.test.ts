@@ -1,4 +1,5 @@
-import { interval, wait } from "@/index";
+import { wait } from "@/index";
+import { interval } from "@/interval";
 import { describe, expect, test } from "vitest";
 
 const time = 200;

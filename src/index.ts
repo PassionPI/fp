@@ -1,10 +1,11 @@
+export * from "./concurrent";
 export * from "./defer";
 export * from "./either";
-export * from "./interval";
+// export * from "./interval";
 export * from "./lock";
 export * from "./oni";
 export * from "./pipeline";
-export * from "./sync/functor";
+// export * from "./sync/functor";
 export * from "./sync/lru";
 export * from "./sync/pipe";
 export * from "./wait";

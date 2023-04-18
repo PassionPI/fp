@@ -620,7 +620,7 @@ export const pipe: Pipe =
     return acc;
   };
 
-export const asyncPipe: AsyncPipe =
+export const async_pipe: AsyncPipe =
   (...fns: Function[]) =>
   async (acc?: unknown) => {
     for (const fn of fns) {
