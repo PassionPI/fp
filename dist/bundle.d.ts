@@ -1,3 +1,14 @@
+type Jar<T> = [Error | null, Awaited<T>];
+type JarChain<T> = Jar<JarJoin<T>>;
+type JarJoin<T> = T extends Jar<infer U> ? JarJoin<U> : Awaited<T>;
+
+declare const either: <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Either<R>;
+type Either<R> = Promise<JarChain<R>>;
+
+declare const range_error_message: "Number out of range. Please use 0-20(default: 10).";
+type RangeError = typeof range_error_message;
+type Range = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
+type IsValidNumber<N> = N extends number ? `${N}` extends `-${infer _Negative}` | `${number}.${infer _Float}` ? RangeError : N extends Range ? N : RangeError : never;
 /**
  *
  * @description 并发控制函数
@@ -7,47 +18,41 @@
  * 3、排队等待
  */
 type Task<T> = () => Promise<T>;
-declare class Concurrent {
-    #private;
-    static of(...args: ConstructorParameters<typeof Concurrent>): Concurrent;
-    constructor(config?: {
-        max_concurrency?: number;
-    });
-    add: <T>(task: Task<T>) => Promise<T>;
+declare const concurrent: ({ max_concurrency, }?: {
+    max_concurrency?: number;
+}) => {
+    add: <T, N extends number = number>(task: Task<T>, { priority }?: {
+        priority?: IsValidNumber<N>;
+    }) => {
+        pending: (() => Either<Promise<T>>) & {
+            unwrap: () => Promise<T>;
+        };
+        reject: (msg?: unknown) => void;
+    };
     busy: () => boolean;
-    clear: () => void;
-}
-
-type Jar<T> = [Error | null, Awaited<T>];
-type JarChain<T> = Jar<JarChainJoin<T>>;
-type JarChainJoin<T> = T extends Jar<infer U> ? JarChainJoin<U> : Awaited<T>;
+    clear: <N extends number>(priority?: IsValidNumber<N>) => void;
+};
 
 declare const defer: <T = void, E = unknown>() => {
     resolve: (data: T | PromiseLike<T>) => void;
-    reject: (msg?: E | undefined) => void;
-    pending: (() => Promise<JarChain<Promise<T>>>) & {
+    reject: (msg?: E) => void;
+    pending: (() => Either<Promise<T>>) & {
         unwrap: () => Promise<T>;
     };
 };
-type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;
 
-type _Either = <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
-declare const either: _Either;
-type EitherFn<A extends unknown[], R> = ReturnType<typeof either<A, R>>;
-type Either<R> = Promise<JarChain<R>>;
-
-declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Promise<JarChain<R>>;
+declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Either<R>;
 
 type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
-declare const oni: <Ctx, Resp>(fns: Unit<Ctx, Resp>[], end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
+declare const oni: <Ctx, Resp>(fns: Array<Unit<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
 
-type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarChainJoin<U>> : BasePipeline<T>;
-type PipeChainJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipeChainJoin<JarChainJoin<U>> : Awaited<T>;
+type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarJoin<U>> : BasePipeline<T>;
+type PipelineJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipelineJoin<JarJoin<U>> : Awaited<T>;
 declare class BasePipeline<X> extends Promise<Jar<X>> {
     pipe<R>(f: (x: X) => R): Pipeline<R>;
-    ap(x: PipeChainJoin<X> extends (...args: any[]) => any ? Parameters<PipeChainJoin<X>>[0] : never): PipeChainJoin<X> extends (...args: any[]) => any ? Pipeline<ReturnType<PipeChainJoin<X>>> : never;
+    ap(x: PipelineJoin<X> extends (...args: any[]) => any ? Parameters<PipelineJoin<X>>[0] : never): PipelineJoin<X> extends (...args: any[]) => any ? Pipeline<ReturnType<PipelineJoin<X>>> : never;
 }
-declare const pipeline: <X>(x?: X | undefined) => Pipeline<X>;
+declare const pipeline: <X>(x?: X) => Pipeline<X>;
 
 declare const LRU: <K, V>(size: number) => {
     get(key: K): V | undefined;
@@ -100,4 +105,4 @@ declare const async_pipe: AsyncPipe;
 
 declare const wait: (ms?: number) => Promise<unknown>;
 
-export { AsyncPipe, Concurrent, Defer, Either, EitherFn, LRU, Pipe, Pipeline, Unit, async_pipe, defer, either, lock, oni, pipe, pipeline, wait };
+export { LRU, async_pipe, concurrent, defer, either, lock, oni, pipe, pipeline, wait };

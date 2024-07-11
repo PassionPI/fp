@@ -1,160 +1,126 @@
-var z = (e, t, s) => {
-  if (!t.has(e))
-    throw TypeError("Cannot " + s);
-};
-var r = (e, t, s) => (z(e, t, "read from private field"), s ? s.call(e) : t.get(e)), u = (e, t, s) => {
-  if (t.has(e))
-    throw TypeError("Cannot add the same private member more than once");
-  t instanceof WeakSet ? t.add(e) : t.set(e, s);
-}, i = (e, t, s, n) => (z(e, t, "write to private field"), n ? n.call(e, s) : t.set(e, s), s), y = (e, t, s, n) => ({
-  set _(l) {
-    i(e, t, l, s);
-  },
-  get _() {
-    return r(e, t, n);
-  }
-});
-class T {
-  constructor(t) {
-    this.next = null, this.value = t;
-  }
+const { freeze: x, create: T } = Object;
+class w extends Array {
 }
-var h, a, o;
-class N {
-  constructor() {
-    u(this, h, null);
-    u(this, a, null);
-    u(this, o, 0);
-  }
-  size() {
-    return r(this, o);
-  }
-  clear() {
-    i(this, h, null), i(this, a, null), i(this, o, 0);
-  }
-  shift() {
-    const t = r(this, h);
-    return r(this, o) && (i(this, h, t.next), y(this, o)._--), r(this, o) || (i(this, h, null), i(this, a, null)), t == null ? void 0 : t.value;
-  }
-  push(t) {
-    const s = new T(t);
-    r(this, o) ? (r(this, a).next = s, i(this, a, s)) : (i(this, h, s), i(this, a, s)), y(this, o)._++;
-  }
-}
-h = new WeakMap(), a = new WeakMap(), o = new WeakMap();
-var d, f, p, w;
-const g = class {
-  constructor(t) {
-    u(this, d, void 0);
-    u(this, f, void 0);
-    u(this, p, void 0);
-    u(this, w, void 0);
-    i(this, f, 0), i(this, p, new N()), this.add = (n) => new Promise((l, c) => {
-      r(this, p).push({
-        task: n,
-        resolve: l,
-        reject: c
-      }), r(this, w).call(this);
-    }), this.busy = () => r(this, f) === r(this, d), this.clear = () => {
-      r(this, p).clear();
-    }, i(this, w, () => {
-      for (; !this.busy() && r(this, p).size() > 0; ) {
-        const { task: n, reject: l, resolve: c } = r(this, p).shift();
-        y(this, f)._++, Promise.resolve().then(n).then(c).catch(l).finally(() => {
-          y(this, f)._--, r(this, w).call(this);
-        });
-      }
-    });
-    const { max_concurrency: s } = t || {};
-    i(this, d, s ?? 2);
-  }
-  static of(...t) {
-    return new g(...t);
-  }
-};
-let b = g;
-d = new WeakMap(), f = new WeakMap(), p = new WeakMap(), w = new WeakMap();
-const { freeze: j, create: B } = Object;
-class m extends Array {
-}
-const L = (e) => e instanceof m, P = (e) => L(e) ? e[0] ? e : P() : j(
-  m.of(
-    e instanceof Error ? e : Error(typeof e == "object" ? JSON.stringify(e) : String(e)),
+const q = (t) => t instanceof w, m = (t) => q(t) ? t[0] ? t : m() : x(
+  w.of(
+    t instanceof Error ? t : Error(typeof t == "object" ? JSON.stringify(t) : String(t)),
     null
   )
-), _ = (e) => L(e) ? e : j(m.of(null, e)), x = [_, P], E = (e) => new Proxy(e, {
-  async apply(...t) {
+), _ = (t) => q(t) ? t : x(w.of(null, t)), f = [_, m], P = (t) => new Proxy(t, {
+  async apply(...e) {
     try {
-      return _(await Reflect.apply(...t));
-    } catch (s) {
-      return P(s);
+      return _(await Reflect.apply(...e));
+    } catch (n) {
+      return m(n);
     }
   }
-}), J = () => {
-  let e, t;
-  const s = new Promise((c, R) => {
-    [e, t] = [c, R];
-  }), n = E(() => s), l = () => s;
-  return n.unwrap = l, { resolve: e, reject: t, pending: n };
-}, O = (...e) => (t) => {
-  for (const s of e)
-    t = s(t);
-  return t;
-}, M = (...e) => async (t) => {
-  for (const s of e)
-    t = s(await t);
-  return t;
-}, S = (e) => {
-  let t = null;
-  return new Proxy(e, {
-    async apply(...s) {
-      t == null && (t = Promise.resolve(Reflect.apply(...s)));
-      const n = await t;
-      return t = null, n;
+}), b = () => {
+  let t = () => {
+  }, e = () => {
+  };
+  const n = new Promise((u, a) => {
+    [t, e] = [u, a];
+  }), r = P(() => n), c = () => n;
+  return r.unwrap = c, { resolve: t, reject: e, pending: r };
+}, z = 0, h = 20, d = 10, E = (t) => typeof t != "number" ? d : Math.floor(Math.max(z, Math.min(h, t))), I = ({
+  max_concurrency: t = 2
+} = {}) => {
+  const e = {
+    max_concurrency: t,
+    current_count: 0,
+    queue: Array.from({ length: h + 1 }, () => /* @__PURE__ */ new Set())
+  }, n = (s) => {
+    if (s != null) {
+      const o = E(s);
+      return e.queue[o];
+    }
+    for (let o = h; o >= 0; o--)
+      if (e.queue[o].size > 0)
+        return e.queue[o];
+    return e.queue[d];
+  }, r = (s, { priority: o } = {}) => {
+    const l = b(), i = n(o ?? d), p = l.resolve, j = l.pending, y = (M) => {
+      l.reject(M), i.delete(g);
+    }, g = { task: s, resolve: p, reject: y };
+    return i.add(g), a(), { pending: j, reject: y };
+  }, c = () => e.current_count === e.max_concurrency, u = (s) => {
+    let o = n(s);
+    for (; o.size; )
+      o.forEach((l) => l.reject()), o.clear(), o = n(s);
+  }, a = () => {
+    let s = n();
+    for (; !c() && s.size; ) {
+      e.current_count++;
+      const o = s.values().next().value, { task: l, reject: i, resolve: p } = o;
+      s.delete(o), s = n(), Promise.resolve().then(l).then(p).catch(i).finally(() => {
+        e.current_count--, a();
+      });
+    }
+  };
+  return {
+    add: r,
+    busy: c,
+    clear: u
+  };
+}, v = (...t) => (e) => {
+  for (const n of t)
+    e = n(e);
+  return e;
+}, N = (...t) => async (e) => {
+  for (const n of t)
+    e = n(await e);
+  return e;
+}, A = (t) => {
+  let e = null;
+  return new Proxy(t, {
+    async apply(...n) {
+      e == null && (e = Promise.resolve(Reflect.apply(...n)));
+      const r = await e;
+      return e = null, r;
     }
   });
-}, U = O(S, E), k = (e) => {
-  let t = !1, s;
-  return (...n) => (t || (t = !0, s = e(...n)), s);
-}, V = (e, t) => {
-  const s = (e == null ? void 0 : e.length) ?? 0;
-  return (n) => {
-    const l = async (c) => c < s ? await e[c](
-      n,
-      k(() => l(c + 1))
-    ) : await t(n);
-    return l(0);
+}, O = v(A, P), R = (t) => {
+  let e = !1, n;
+  return (...r) => (e || (e = !0, n = t(...r)), n);
+}, B = (t, e) => {
+  const n = (t == null ? void 0 : t.length) ?? 0;
+  return (r) => {
+    const c = async (u) => u < n ? await t[u](
+      r,
+      R(() => c(u + 1))
+    ) : await e(r);
+    return c(0);
   };
 };
-class q extends Promise {
-  pipe(t) {
-    return super.then((s) => s[0] ? s : t(s[1])).then(...x);
+class S extends Promise {
+  pipe(e) {
+    return super.then((n) => n[0] ? n : e(n[1])).then(...f);
   }
-  ap(t) {
-    return super.then((s) => s[0] ? s : s[1](t)).then(...x);
+  ap(e) {
+    return super.then((n) => n[0] ? n : n[1](e)).then(...f);
   }
 }
-const v = (e) => q.resolve(e).then(...x), D = (e) => {
-  const t = /* @__PURE__ */ new Map();
+const D = (t) => S.resolve(t).then(...f), J = (t) => {
+  const e = /* @__PURE__ */ new Map();
   return {
-    get(s) {
-      const n = t.get(s);
-      return t.has(s) && (t.delete(s), t.set(s, n)), n;
+    get(n) {
+      const r = e.get(n);
+      return e.has(n) && (e.delete(n), e.set(n, r)), r;
     },
-    set(s, n) {
-      t.has(s) && t.delete(s), t.set(s, n), t.size > e && t.delete(t.keys().next().value);
+    set(n, r) {
+      e.has(n) && e.delete(n), e.set(n, r), e.size > t && e.delete(e.keys().next().value);
     }
   };
-}, F = (e) => new Promise((t) => setTimeout(t, e));
+}, L = (t) => new Promise((e) => setTimeout(e, t));
 export {
-  b as Concurrent,
-  D as LRU,
-  M as async_pipe,
-  J as defer,
-  E as either,
-  U as lock,
-  V as oni,
-  O as pipe,
-  v as pipeline,
-  F as wait
+  J as LRU,
+  N as async_pipe,
+  I as concurrent,
+  b as defer,
+  P as either,
+  O as lock,
+  B as oni,
+  v as pipe,
+  D as pipeline,
+  L as wait
 };

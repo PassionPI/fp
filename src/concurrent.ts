@@ -1,57 +1,48 @@
-/**
- * @description 链表节点
- */
-class LinkNode<T> {
-  value: T;
-  next: null | LinkNode<T> = null;
+import { defer } from "./defer";
 
-  constructor(value: T) {
-    this.value = value;
-  }
-}
-/**
- * @description 链表
- */
-class LinkList<T> {
-  #head: null | LinkNode<T> = null;
-  #last: null | LinkNode<T> = null;
-  #size = 0;
+const MIN = 0;
+const MAX = 20;
+const MID = 10;
+const range_error_message =
+  `Number out of range. Please use ${MIN}-${MAX}(default: ${MID}).` as const;
+type RangeError = typeof range_error_message;
+type Range =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20;
 
-  size() {
-    return this.#size;
-  }
+type IsValidNumber<N> = N extends number
+  ? `${N}` extends `-${infer _Negative}` | `${number}.${infer _Float}`
+    ? RangeError
+    : N extends Range
+    ? N
+    : RangeError
+  : never;
 
-  clear() {
-    this.#head = null;
-    this.#last = null;
-    this.#size = 0;
+export const valid_number = <N extends number>(x?: IsValidNumber<N>) => {
+  if (typeof x != "number") {
+    return MID;
   }
-
-  shift(): undefined | T {
-    const head = this.#head;
-    if (this.#size) {
-      this.#head = head!.next;
-      this.#size--;
-    }
-    if (!this.#size) {
-      this.#head = null;
-      this.#last = null;
-    }
-    return head?.value;
-  }
-
-  push(value: T): void {
-    const last = new LinkNode(value);
-    if (this.#size) {
-      this.#last!.next = last;
-      this.#last! = last;
-    } else {
-      this.#head! = last;
-      this.#last! = last;
-    }
-    this.#size++;
-  }
-}
+  return Math.floor(Math.max(MIN, Math.min(MAX, x)));
+};
 
 /**
  *
@@ -69,51 +60,87 @@ type TaskItem<T> = {
   reject: (reason?: unknown) => void;
 };
 
-export class Concurrent {
-  #max_concurrency: number;
-  #current_count = 0;
-  #queue = new LinkList<TaskItem<any>>();
+type AnyTaskItem = TaskItem<any>;
 
-  static of(...args: ConstructorParameters<typeof Concurrent>) {
-    return new Concurrent(...args);
-  }
-
-  constructor(config?: { max_concurrency?: number }) {
-    const { max_concurrency } = config || {};
-    this.#max_concurrency = max_concurrency ?? 2;
-  }
-
-  add = <T>(task: Task<T>): Promise<T> => {
-    return new Promise((resolve, reject) => {
-      this.#queue.push({
-        task,
-        resolve,
-        reject,
-      });
-      this.#next();
-    });
+export const concurrent = ({
+  max_concurrency = 2,
+}: { max_concurrency?: number } = {}) => {
+  const ref: {
+    max_concurrency: number;
+    current_count: number;
+    queue: Set<AnyTaskItem>[];
+  } = {
+    max_concurrency,
+    current_count: 0,
+    queue: Array.from({ length: MAX + 1 }, () => new Set()),
   };
 
-  busy = (): boolean => {
-    return this.#current_count === this.#max_concurrency;
+  const get_queue = <N extends number>(priority?: IsValidNumber<N>) => {
+    if (priority != null) {
+      const x = valid_number(priority);
+      return ref.queue[x];
+    }
+    for (let i = MAX; i >= 0; i--) {
+      if (ref.queue[i].size > 0) {
+        return ref.queue[i];
+      }
+    }
+    return ref.queue[MID];
   };
 
-  clear = (): void => {
-    this.#queue.clear();
+  const add = <T, N extends number = number>(
+    task: Task<T>,
+    { priority }: { priority?: IsValidNumber<N> } = {}
+  ) => {
+    const df = defer<T>();
+    const queue = get_queue((priority ?? MID) as IsValidNumber<N>);
+    const resolve = df.resolve;
+    const pending = df.pending;
+    const reject: (typeof df)["reject"] = (msg) => {
+      df.reject(msg);
+      queue.delete(item);
+    };
+    const item = { task, resolve, reject };
+    queue.add(item);
+    next();
+    return { pending, reject };
   };
 
-  #next = (): void => {
-    while (!this.busy() && this.#queue.size() > 0) {
-      const { task, reject, resolve } = this.#queue.shift()!;
-      this.#current_count++;
+  const busy = (): boolean => {
+    return ref.current_count === ref.max_concurrency;
+  };
+
+  const clear = <N extends number>(priority?: IsValidNumber<N>): void => {
+    let queue = get_queue(priority);
+    while (queue.size) {
+      queue.forEach((x) => x.reject());
+      queue.clear();
+      queue = get_queue(priority);
+    }
+  };
+
+  const next = (): void => {
+    let queue = get_queue();
+    while (!busy() && queue.size) {
+      ref.current_count++;
+      const item: AnyTaskItem = queue.values().next().value;
+      const { task, reject, resolve } = item;
+      queue.delete(item);
+      queue = get_queue();
       Promise.resolve()
         .then(task)
         .then(resolve)
         .catch(reject)
         .finally(() => {
-          this.#current_count--;
-          this.#next();
+          ref.current_count--;
+          next();
         });
     }
   };
-}
+
+  return {
+    add,
+    busy,
+    clear,
+  };
+};

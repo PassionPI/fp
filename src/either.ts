@@ -1,10 +1,6 @@
 import { JarChain, tupleErr, tupleVal } from "./utils/tuple";
 
-type _Either = <A extends unknown[], R>(
-  fn: (...args: A) => R
-) => (...args: A) => Promise<JarChain<R>>;
-
-export const either: _Either = (fn) => {
+export const either = <A extends unknown[], R>(fn: (...args: A) => R) => {
   return new Proxy(fn, {
     async apply(...args) {
       try {
@@ -13,7 +9,7 @@ export const either: _Either = (fn) => {
         return tupleErr(e);
       }
     },
-  }) as any;
+  }) as (...args: A) => Either<R>;
 };
 
 export type EitherFn<A extends unknown[], R> = ReturnType<typeof either<A, R>>;

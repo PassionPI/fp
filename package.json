@@ -1,6 +1,7 @@
 {
-  "name": "ufp",
+  "name": "@passion_pi/fp",
   "version": "0.1.5",
+  "privet": false,
   "description": "",
   "type": "module",
   "scripts": {
@@ -25,14 +26,14 @@
   },
   "homepage": "https://github.com/PassionPI/fp-async#readme",
   "devDependencies": {
-    "@vitest/coverage-c8": "^0.29.2",
-    "rambda": "^7.1.4",
-    "rollup": "^3",
-    "rollup-plugin-dts": "^5",
-    "tsx": "^3.8.2",
-    "typescript": "^5",
-    "vite": "^4",
-    "vitest": "^0.29.0"
+    "@vitest/coverage-v8": "^2.0.1",
+    "rambda": "^9",
+    "rollup": "^4",
+    "rollup-plugin-dts": "^6",
+    "tsx": "^4",
+    "typescript": "^5.5",
+    "vite": "^5",
+    "vitest": "^2"
   },
   "files": [
     "dist",

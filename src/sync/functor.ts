@@ -1,15 +1,15 @@
 import { create, freeze } from "../utils/object";
-import { isTuple, Jar, JarChainJoin, tupleErr, tupleVal } from "../utils/tuple";
+import { isTuple, Jar, JarJoin, tupleErr, tupleVal } from "../utils/tuple";
 
 type Functor<T extends unknown> = {
   ap(
-    x: JarChainJoin<T> extends (...args: any[]) => any
-      ? Parameters<JarChainJoin<T>>[0]
+    x: JarJoin<T> extends (...args: any[]) => any
+      ? Parameters<JarJoin<T>>[0]
       : never
-  ): JarChainJoin<T> extends (...args: any[]) => any
-    ? FunctorJarChain<ReturnType<JarChainJoin<T>>>
+  ): JarJoin<T> extends (...args: any[]) => any
+    ? FunctorJarChain<ReturnType<JarJoin<T>>>
     : never;
-  map<R>(f: (x: JarChainJoin<T>) => R): FunctorJarChain<R>;
+  map<R>(f: (x: JarJoin<T>) => R): FunctorJarChain<R>;
   join(): T;
 };
 
