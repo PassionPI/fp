@@ -56,5 +56,8 @@
     "fp",
     "functional",
     "utility"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
