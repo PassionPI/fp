@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PassionPI/fp-async.git"
+    "url": "git+https://github.com/PassionPI/fp.git"
   },
   "author": "PassionPI <472121553@qq.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PassionPI/fp-async/issues"
+    "url": "https://github.com/PassionPI/fp/issues"
   },
-  "homepage": "https://github.com/PassionPI/fp-async#readme",
+  "homepage": "https://github.com/PassionPI/fp#readme",
   "devDependencies": {
     "@vitest/coverage-v8": "^2.0.1",
     "rambda": "^9",
