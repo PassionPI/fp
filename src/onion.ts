@@ -7,11 +7,11 @@ export type OnionLayer<T, R> = (
 
 export const onion = <Ctx, Resp>(
   fns: Array<OnionLayer<Ctx, Resp>>,
-  end: (ctx: Ctx) => Promise<Resp>
+  end: (ctx: Ctx) => Promise<Awaited<Resp>>
 ) => {
   const len = fns?.length ?? 0;
   return (ctx: Ctx) => {
-    const next = async (i: number): Promise<Resp> => {
+    const next = async (i: number): Promise<Awaited<Resp>> => {
       if (i < len) {
         return await fns[i](
           ctx,
