@@ -3,12 +3,14 @@ type JarChain<T> = Jar<JarJoin<T>>;
 type JarJoin<T> = T extends Jar<infer U> ? JarJoin<U> : Awaited<T>;
 
 declare const either: <A extends unknown[], R>(fn: (...args: A) => R) => (...args: A) => Either<R>;
+type EitherFn<A extends unknown[], R> = ReturnType<typeof either<A, R>>;
 type Either<R> = Promise<JarChain<R>>;
 
 declare const range_error_message: "Number out of range. Please use 0-20(default: 10).";
 type RangeError = typeof range_error_message;
 type Range = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 type IsValidNumber<N> = N extends number ? `${N}` extends `-${infer _Negative}` | `${number}.${infer _Float}` ? RangeError : N extends Range ? N : RangeError : never;
+
 /**
  *
  * @description 并发控制函数
@@ -40,11 +42,12 @@ declare const defer: <T = void, E = unknown>() => {
         unwrap: () => Promise<T>;
     };
 };
+type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;
 
 declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Either<R>;
 
-type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
-declare const oni: <Ctx, Resp>(fns: Array<Unit<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
+type OnionLayer<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
+declare const onion: <Ctx, Resp>(fns: Array<OnionLayer<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
 
 type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarJoin<U>> : BasePipeline<T>;
 type PipelineJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipelineJoin<JarJoin<U>> : Awaited<T>;
@@ -105,4 +108,4 @@ declare const async_pipe: AsyncPipe;
 
 declare const wait: (ms?: number) => Promise<unknown>;
 
-export { LRU, async_pipe, concurrent, defer, either, lock, oni, pipe, pipeline, wait };
+export { type AsyncPipe, type Defer, type Either, type EitherFn, LRU, type OnionLayer, type Pipe, type Pipeline, async_pipe, concurrent, defer, either, lock, onion, pipe, pipeline, wait };
