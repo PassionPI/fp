@@ -1,9 +1,12 @@
 import { once } from "./utils/once";
 
-export type Unit<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
+export type OnionLayer<T, R> = (
+  ctx: T,
+  next: () => Promise<R>
+) => Promise<R> | R;
 
-export const oni = <Ctx, Resp>(
-  fns: Array<Unit<Ctx, Resp>>,
+export const onion = <Ctx, Resp>(
+  fns: Array<OnionLayer<Ctx, Resp>>,
   end: (ctx: Ctx) => Promise<Resp>
 ) => {
   const len = fns?.length ?? 0;
