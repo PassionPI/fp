@@ -1,48 +1,48 @@
-const { freeze: x, create: T } = Object;
-class w extends Array {
+const P = (t) => typeof t != "number" ? 10 : Math.floor(Math.max(0, Math.min(20, t))), { freeze: y, create: D } = Object;
+class h extends Array {
 }
-const q = (t) => t instanceof w, m = (t) => q(t) ? t[0] ? t : m() : x(
-  w.of(
+const M = (t) => t instanceof h, d = (t) => M(t) ? t[0] ? t : d() : y(
+  h.of(
     t instanceof Error ? t : Error(typeof t == "object" ? JSON.stringify(t) : String(t)),
     null
   )
-), _ = (t) => q(t) ? t : x(w.of(null, t)), f = [_, m], P = (t) => new Proxy(t, {
+), g = (t) => M(t) ? t : y(h.of(null, t)), f = [g, d], x = (t) => new Proxy(t, {
   async apply(...e) {
     try {
-      return _(await Reflect.apply(...e));
+      return g(await Reflect.apply(...e));
     } catch (n) {
-      return m(n);
+      return d(n);
     }
   }
-}), b = () => {
+}), j = () => {
   let t = () => {
   }, e = () => {
   };
   const n = new Promise((u, a) => {
     [t, e] = [u, a];
-  }), r = P(() => n), c = () => n;
+  }), r = x(() => n), c = () => n;
   return r.unwrap = c, { resolve: t, reject: e, pending: r };
-}, z = 0, h = 20, d = 10, E = (t) => typeof t != "number" ? d : Math.floor(Math.max(z, Math.min(h, t))), I = ({
+}, E = ({
   max_concurrency: t = 2
 } = {}) => {
   const e = {
     max_concurrency: t,
     current_count: 0,
-    queue: Array.from({ length: h + 1 }, () => /* @__PURE__ */ new Set())
+    queue: Array.from({ length: 21 }, () => /* @__PURE__ */ new Set())
   }, n = (s) => {
     if (s != null) {
-      const o = E(s);
+      const o = P(s);
       return e.queue[o];
     }
-    for (let o = h; o >= 0; o--)
+    for (let o = 20; o >= 0; o--)
       if (e.queue[o].size > 0)
         return e.queue[o];
-    return e.queue[d];
+    return e.queue[10];
   }, r = (s, { priority: o } = {}) => {
-    const l = b(), i = n(o ?? d), p = l.resolve, j = l.pending, y = (M) => {
-      l.reject(M), i.delete(g);
-    }, g = { task: s, resolve: p, reject: y };
-    return i.add(g), a(), { pending: j, reject: y };
+    const l = j(), i = n(o ?? 10), p = l.resolve, q = l.pending, w = (_) => {
+      l.reject(_), i.delete(m);
+    }, m = { task: s, resolve: p, reject: w };
+    return i.add(m), a(), { pending: q, reject: w };
   }, c = () => e.current_count === e.max_concurrency, u = (s) => {
     let o = n(s);
     for (; o.size; )
@@ -62,15 +62,15 @@ const q = (t) => t instanceof w, m = (t) => q(t) ? t[0] ? t : m() : x(
     busy: c,
     clear: u
   };
-}, v = (...t) => (e) => {
+}, A = (...t) => (e) => {
   for (const n of t)
     e = n(e);
   return e;
-}, N = (...t) => async (e) => {
+}, X = (...t) => async (e) => {
   for (const n of t)
     e = n(await e);
   return e;
-}, A = (t) => {
+}, I = (t) => {
   let e = null;
   return new Proxy(t, {
     async apply(...n) {
@@ -79,20 +79,20 @@ const q = (t) => t instanceof w, m = (t) => q(t) ? t[0] ? t : m() : x(
       return e = null, r;
     }
   });
-}, O = v(A, P), R = (t) => {
+}, v = A(I, x), b = (t) => {
   let e = !1, n;
   return (...r) => (e || (e = !0, n = t(...r)), n);
-}, B = (t, e) => {
+}, N = (t, e) => {
   const n = (t == null ? void 0 : t.length) ?? 0;
   return (r) => {
     const c = async (u) => u < n ? await t[u](
       r,
-      R(() => c(u + 1))
+      b(() => c(u + 1))
     ) : await e(r);
     return c(0);
   };
 };
-class S extends Promise {
+class z extends Promise {
   pipe(e) {
     return super.then((n) => n[0] ? n : e(n[1])).then(...f);
   }
@@ -100,7 +100,7 @@ class S extends Promise {
     return super.then((n) => n[0] ? n : n[1](e)).then(...f);
   }
 }
-const D = (t) => S.resolve(t).then(...f), J = (t) => {
+const R = (t) => z.resolve(t).then(...f), S = (t) => {
   const e = /* @__PURE__ */ new Map();
   return {
     get(n) {
@@ -111,16 +111,16 @@ const D = (t) => S.resolve(t).then(...f), J = (t) => {
       e.has(n) && e.delete(n), e.set(n, r), e.size > t && e.delete(e.keys().next().value);
     }
   };
-}, L = (t) => new Promise((e) => setTimeout(e, t));
+}, T = (t) => new Promise((e) => setTimeout(e, t));
 export {
-  J as LRU,
-  N as async_pipe,
-  I as concurrent,
-  b as defer,
-  P as either,
-  O as lock,
-  B as oni,
-  v as pipe,
-  D as pipeline,
-  L as wait
+  S as LRU,
+  X as async_pipe,
+  E as concurrent,
+  j as defer,
+  x as either,
+  v as lock,
+  N as onion,
+  A as pipe,
+  R as pipeline,
+  T as wait
 };

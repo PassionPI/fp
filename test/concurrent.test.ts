@@ -1,5 +1,5 @@
-import { valid_number } from "@/concurrent";
 import { concurrent, wait } from "@/index";
+import { valid_number } from "@/utils/valid_number";
 import { describe, expect, test } from "vitest";
 
 const task1Time = 50;
