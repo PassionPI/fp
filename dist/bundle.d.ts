@@ -47,7 +47,7 @@ type Defer<T = void, E = unknown> = ReturnType<typeof defer<T, E>>;
 declare const lock: <A extends unknown[], R>(init: (...args: A) => R) => (...args: A) => Either<R>;
 
 type OnionLayer<T, R> = (ctx: T, next: () => Promise<R>) => Promise<R> | R;
-declare const onion: <Ctx, Resp>(fns: Array<OnionLayer<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Awaited<Resp>>) => (ctx: Ctx) => Promise<Awaited<Resp>>;
+declare const onion: <Ctx, Resp>(fns: Array<OnionLayer<Ctx, Resp>>, end: (ctx: Ctx) => Promise<Resp>) => (ctx: Ctx) => Promise<Resp>;
 
 type Pipeline<T> = T extends BasePipeline<infer U> | Promise<infer U> ? Pipeline<JarJoin<U>> : BasePipeline<T>;
 type PipelineJoin<T> = T extends BasePipeline<infer U> | Promise<infer U> ? PipelineJoin<JarJoin<U>> : Awaited<T>;
