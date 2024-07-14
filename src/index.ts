@@ -7,4 +7,3 @@ export * from "./pipeline";
 export * from "./sync/lru";
 export * from "./sync/pipe";
 export * from "./wait";
-console.log("Hello, world!");
