@@ -1,4 +1,4 @@
-# [ufp](https://github.com/PassionPI/fp-async#readme)
+# [@passion_pi/fp](https://github.com/PassionPI/fp#readme)
 
 ## 宗旨
 
@@ -11,7 +11,7 @@
 3. 单一性原则,即一个函数只做一件事
    - 减少泛型使用「泛型应使用在较为通用的集合中」
 
-## [Doc](https://github.com/PassionPI/fp-async#readme)
+## [Doc](https://github.com/PassionPI/fp#readme)
 
 ### either
 
@@ -36,7 +36,7 @@ interface Either {
 #### example
 
 ```typescript
-import { either } from "fp-async";
+import { either } from "@passion_pi/fp";
 
 const isErr = either(() => Promise.reject("err"));
 const isOk = either(() => Promise.resolve({ data: "ok" }));
@@ -48,77 +48,10 @@ var [err, data] = await isOk();
 // err => null; data => { data: "ok" }
 ```
 
-### pipeline
+### defer
 
 ```typescript
-declare type PipeChain<T> = T extends Pipeline<infer U> | Promise<infer U>
-  ? PipeChain<JarChainJoin<U>>
-  : Pipeline<T>;
-declare type PipeChainJoin<T> = T extends Pipeline<infer U> | Promise<infer U>
-  ? PipeChainJoin<JarChainJoin<U>>
-  : Awaited<T>;
-declare class Pipeline<X> extends Promise<Jar<X>> {
-  pipe<R>(f: (x: X) => R): PipeChain<R>;
-  ap(
-    x: PipeChainJoin<X> extends (...args: any[]) => any
-      ? Parameters<PipeChainJoin<X>>[0]
-      : never
-  ): PipeChainJoin<X> extends (...args: any[]) => any
-    ? PipeChain<ReturnType<PipeChainJoin<X>>>
-    : never;
-}
-declare const pipeline: <X>(x?: X | undefined) => PipeChain<X>;
-```
-
-#### description
-
-通过 pipe 的连缀调用形式
-组合多个异步方法
-并且自动错误捕获
-当产生错误的时候
-自动停止后续函数调用
-
-产生错误 => `Promise<[Error, null]>`
-
-正常运行 => `Promise<[null, Awaited<ReturnType<typeof fn>>]>`
-
-默认返回签名 => `Promise<[Error | null, Awaited<ReturnType<typeof fn>>]>`
-
-注: 可以与`either`一同使用
-
-#### example
-
-```typescript
-import { pipeline, either } from "fp-async";
-
-const isErr = either(() => Promise.reject("err"));
-const idNumber = either((x: number) => Promise.resolve(x));
-
-var [err, data] = await pipeline(1)
-  .pipe(idNumber)
-  .pipe((x) => x + 1);
-// err => null; data => 2
-
-var [err, data] = await pipeline()
-  .pipe(isErr)
-  .pipe(() => console.log("is call?")); // 此行代码不执行
-// err => Error('err'); data => null
-
-var [err, data] = await pipeline()
-  .pipe(() => Promise.reject("err"))
-  .pipe(() => console.log("is call?")); // 此行代码不执行
-// err => Error('err'); data => null
-
-var [err, data] = await pipeline(1)
-  .pipe((x) => x + 1)
-  .pipe((x) => ({ x }));
-// err => null; data => { x: 2 }
-```
-
-### pended
-
-```typescript
-export declare const pended: <T = unknown, E = unknown>() => {
+export declare const defer: <T = unknown, E = unknown>() => {
   resolve: (data?: T | PromiseLike<T> | undefined) => void;
   reject: (msg?: E | undefined) => void;
   pending: Promise<T>;
@@ -126,46 +59,3 @@ export declare const pended: <T = unknown, E = unknown>() => {
 ```
 
 #### description
-
-通过 pipe 的连缀调用形式
-组合多个异步方法
-并且自动错误捕获
-当产生错误的时候
-自动停止后续函数调用
-
-产生错误 => `Promise<[Error, null]>`
-
-正常运行 => `Promise<[null, Awaited<ReturnType<typeof fn>>]>`
-
-默认返回签名 => `Promise<[Error | null, Awaited<ReturnType<typeof fn>>]>`
-
-注: 可以与`either`一同使用
-
-#### example
-
-```typescript
-import { pipeline, either } from "fp-async";
-
-const isErr = either(() => Promise.reject("err"));
-const idNumber = either((x: number) => Promise.resolve(x));
-
-var [err, data] = await pipeline(1)
-  .pipe(idNumber)
-  .pipe((x) => x + 1);
-// err => null; data => 2
-
-var [err, data] = await pipeline()
-  .pipe(isErr)
-  .pipe(() => console.log("is call?")); // 此行代码不执行
-// err => Error('err'); data => null
-
-var [err, data] = await pipeline()
-  .pipe(() => Promise.reject("err"))
-  .pipe(() => console.log("is call?")); // 此行代码不执行
-// err => Error('err'); data => null
-
-var [err, data] = await pipeline(1)
-  .pipe((x) => x + 1)
-  .pipe((x) => ({ x }));
-// err => null; data => { x: 2 }
-```
