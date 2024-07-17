@@ -1,6 +1,6 @@
 import { valid_number } from "@/utils/valid_number";
 import { defer } from "./defer";
-import { IsValidNumber, MAX, MID } from "./utils/valid_number";
+import { IsValidPriority, MAX, MID } from "./utils/valid_number";
 
 /**
  *
@@ -33,7 +33,7 @@ export const concurrent = ({
     queue: Array.from({ length: MAX + 1 }, () => new Set()),
   };
 
-  const get_queue = <N extends number>(priority?: IsValidNumber<N>) => {
+  const get_queue = <N extends number>(priority?: IsValidPriority<N>) => {
     if (priority != null) {
       const x = valid_number(priority);
       return ref.queue[x];
@@ -48,10 +48,10 @@ export const concurrent = ({
 
   const add = <T, N extends number = number>(
     task: Task<T>,
-    { priority }: { priority?: IsValidNumber<N> } = {}
+    { priority }: { priority?: IsValidPriority<N> } = {}
   ) => {
     const x = defer<T>();
-    const queue = get_queue((priority ?? MID) as IsValidNumber<N>);
+    const queue = get_queue((priority ?? MID) as IsValidPriority<N>);
     const resolve = x.resolve;
     const pending = x.pending;
     const reject: (typeof x)["reject"] = (msg) => {
@@ -68,7 +68,7 @@ export const concurrent = ({
     return ref.current_count === ref.max_concurrency;
   };
 
-  const clear = <N extends number>(priority?: IsValidNumber<N>): void => {
+  const clear = <N extends number>(priority?: IsValidPriority<N>): void => {
     let queue = get_queue(priority);
     while (queue.size) {
       queue.forEach((x) => x.reject());
