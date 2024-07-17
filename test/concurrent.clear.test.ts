@@ -60,12 +60,12 @@ describe.concurrent("concurrent clear", async () => {
     );
     instance.clear(5);
     await Promise.allSettled([
-      p1.pending.unwrap(),
-      p2.pending.unwrap(),
-      p3.pending.unwrap(),
-      p4.pending.unwrap(),
-      p5.pending.unwrap(),
-      p6.pending.unwrap(),
+      p1.pending,
+      p2.pending,
+      p3.pending,
+      p4.pending,
+      p5.pending,
+      p6.pending,
     ]);
     expect(seq).toEqual([1, 2, 5, 4, 6]);
   });

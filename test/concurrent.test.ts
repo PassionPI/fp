@@ -34,7 +34,7 @@ describe.concurrent("concurrent base", async () => {
     expect(instance.busy()).eq(true);
     await wait(task3Time + 5);
     expect(instance.busy()).eq(false);
-    await p2.pending();
+    await p2.pending;
     const end_time = Date.now();
     expect(end_time - start_time).gte(task2Time);
   });
@@ -78,12 +78,12 @@ describe.concurrent("concurrent base", async () => {
       { priority: 0 }
     );
     await Promise.all([
-      p1.pending(),
-      p2.pending(),
-      p3.pending(),
-      p4.pending(),
-      p5.pending(),
-      p6.pending(),
+      p1.pending,
+      p2.pending,
+      p3.pending,
+      p4.pending,
+      p5.pending,
+      p6.pending,
     ]);
     expect(seq).toEqual([1, 2, 5, 4, 3, 6]);
   });

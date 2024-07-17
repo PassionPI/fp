@@ -1,6 +1,6 @@
 {
   "name": "@passion_pi/fp",
-  "version": "0.1.18",
+  "version": "0.2.0",
   "privet": false,
   "description": "",
   "type": "module",
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/PassionPI/fp.git"
   },
-  "author": "PassionPI <472121553@qq.com>",
+  "author": "PassionPI <ipjig@qq.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/PassionPI/fp/issues"

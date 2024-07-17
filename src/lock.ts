@@ -1,7 +1,4 @@
-import { either } from "./either";
-import { pipe } from "./sync/pipe";
-
-const _lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
+export const lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
   let pending: Promise<R> | null = null;
   return new Proxy(fn, {
     async apply(...args) {
@@ -14,5 +11,3 @@ const _lock = <A extends unknown[], R>(fn: (...args: A) => R) => {
     },
   });
 };
-
-export const lock = pipe(_lock, either);
