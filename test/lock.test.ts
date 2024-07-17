@@ -13,14 +13,12 @@ describe.concurrent("lock", async () => {
   };
   const wrap = lock(fakeFetch);
   test("call step1 1", async () => {
-    const [err, data] = await wrap();
-    expect(err).toBe(null);
+    const data = await wrap();
     expect(data).toEqual([MSG, 1]);
   });
 
   test("call step1 2", async () => {
-    const [err, data] = await wrap();
-    expect(err).toBe(null);
+    const data = await wrap();
     expect(data).toEqual([MSG, 1]);
   });
 
@@ -31,16 +29,14 @@ describe.concurrent("lock", async () => {
 
   test("call step2 1", async () => {
     await wait(time);
-    const [err, data] = await wrap();
-    expect(err).toBe(null);
+    const data = await wrap();
     expect(data).toEqual([MSG, 2]);
   });
 
   test("call step2 2", async () => {
     await wait(time);
     await wait(time / 2);
-    const [err, data] = await wrap();
-    expect(err).toBe(null);
+    const data = await wrap();
     expect(data).toEqual([MSG, 2]);
   });
 

@@ -60,13 +60,13 @@ describe.concurrent("concurrent reject", async () => {
     );
     p1.reject();
     p5.reject();
-    await Promise.all([
-      p1.pending(),
-      p2.pending(),
-      p3.pending(),
-      p4.pending(),
-      p5.pending(),
-      p6.pending(),
+    await Promise.allSettled([
+      p1.pending,
+      p2.pending,
+      p3.pending,
+      p4.pending,
+      p5.pending,
+      p6.pending,
     ]);
     expect(seq).toEqual([1, 2, 4, 3, 6]);
   });

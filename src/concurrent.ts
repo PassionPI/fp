@@ -50,12 +50,12 @@ export const concurrent = ({
     task: Task<T>,
     { priority }: { priority?: IsValidNumber<N> } = {}
   ) => {
-    const df = defer<T>();
+    const x = defer<T>();
     const queue = get_queue((priority ?? MID) as IsValidNumber<N>);
-    const resolve = df.resolve;
-    const pending = df.pending;
-    const reject: (typeof df)["reject"] = (msg) => {
-      df.reject(msg);
+    const resolve = x.resolve;
+    const pending = x.pending;
+    const reject: (typeof x)["reject"] = (msg) => {
+      x.reject(msg);
       queue.delete(item);
     };
     const item = { task, resolve, reject };
