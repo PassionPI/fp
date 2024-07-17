@@ -27,7 +27,7 @@ type Range =
   | 19
   | 20;
 
-export type IsValidNumber<N> = N extends number
+export type IsValidPriority<N> = N extends number
   ? `${N}` extends `-${infer _Negative}` | `${number}.${infer _Float}`
     ? RangeError
     : N extends Range
@@ -35,7 +35,7 @@ export type IsValidNumber<N> = N extends number
     : RangeError
   : never;
 
-export const valid_number = <N extends number>(x?: IsValidNumber<N>) => {
+export const valid_number = <N extends number>(x?: IsValidPriority<N>) => {
   if (typeof x != "number") {
     return MID;
   }
