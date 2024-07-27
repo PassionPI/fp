@@ -84,14 +84,12 @@ export const createSchedular = ({
   };
 
   const next = (): void => {
-    let queue = getQueue();
-    while (idle() && queue.size) {
+    for (let queue = getQueue(); idle() && queue.size; queue = getQueue()) {
       const x: AnyTaskItem = queue.values().next().value;
 
       ref.running.add(x);
 
       queue.delete(x);
-      queue = getQueue();
 
       Promise.resolve()
         .then(x.task)
