@@ -2,17 +2,14 @@ import { valid_number } from "@/utils/valid_number";
 import { defer } from "./defer";
 import { IsValidPriority, MAX, MID } from "./utils/valid_number";
 
-/**
- *
- * @description 并发控制函数
- *
- * 1、是否有空闲
- * 2、数量池
- * 3、排队等待
- */
+type TaskConfig<N extends number> = {
+  priority?: IsValidPriority<N>;
+  tag?: string;
+};
+
 type Task<T> = () => Promise<T>;
 
-type TaskItem<T> = {
+type TaskItem<T> = TaskConfig<number> & {
   task: Task<T>;
   resolve: (value: T) => void;
   reject: (reason?: unknown) => void;
@@ -20,20 +17,20 @@ type TaskItem<T> = {
 
 type AnyTaskItem = TaskItem<any>;
 
-export const concurrent = ({
-  max_concurrency = 2,
-}: { max_concurrency?: number } = {}) => {
+export const createSchedular = ({
+  concurrent = 2,
+}: { concurrent?: number } = {}) => {
   const ref: {
-    max_concurrency: number;
-    current_count: number;
-    queue: Set<AnyTaskItem>[];
+    concurrent: number;
+    running: Set<AnyTaskItem>;
+    queue: Array<Set<AnyTaskItem>>;
   } = {
-    max_concurrency,
-    current_count: 0,
+    concurrent,
+    running: new Set(),
     queue: Array.from({ length: MAX + 1 }, () => new Set()),
   };
 
-  const get_queue = <N extends number>(priority?: IsValidPriority<N>) => {
+  const getQueue = <N extends number>(priority?: IsValidPriority<N>) => {
     if (priority != null) {
       const x = valid_number(priority);
       return ref.queue[x];
@@ -48,49 +45,60 @@ export const concurrent = ({
 
   const add = <T, N extends number = number>(
     task: Task<T>,
-    { priority }: { priority?: IsValidPriority<N> } = {}
+    cfg?: TaskConfig<N>
   ) => {
     const x = defer<T>();
-    const queue = get_queue((priority ?? MID) as IsValidPriority<N>);
+    const queue = getQueue((cfg?.priority ?? MID) as IsValidPriority<N>);
     const resolve = x.resolve;
     const pending = x.pending;
     const reject: (typeof x)["reject"] = (msg) => {
       x.reject(msg);
       queue.delete(item);
     };
-    const item = { task, resolve, reject };
+    const item = { ...cfg, task, resolve, reject } as AnyTaskItem;
     queue.add(item);
     next();
     return { pending, reject };
   };
 
-  const busy = (): boolean => {
-    return ref.current_count === ref.max_concurrency;
+  const idle = (): boolean => {
+    return ref.running.size < ref.concurrent;
   };
 
   const clear = <N extends number>(priority?: IsValidPriority<N>): void => {
-    let queue = get_queue(priority);
+    let queue = getQueue(priority);
     while (queue.size) {
       queue.forEach((x) => x.reject());
       queue.clear();
-      queue = get_queue(priority);
+      queue = getQueue(priority);
     }
   };
 
+  const tasks = () => {
+    const running = Array.from(ref.running);
+    const queue = ref.queue.reduceRight<AnyTaskItem[]>(
+      (acc, x) => acc.concat(Array.from(x)),
+      []
+    );
+    return { running, queue };
+  };
+
   const next = (): void => {
-    let queue = get_queue();
-    while (!busy() && queue.size) {
-      ref.current_count++;
-      const item: AnyTaskItem = queue.values().next().value;
-      const { task, reject, resolve } = item;
-      queue.delete(item);
-      queue = get_queue();
+    let queue = getQueue();
+    while (idle() && queue.size) {
+      const x: AnyTaskItem = queue.values().next().value;
+
+      ref.running.add(x);
+
+      queue.delete(x);
+      queue = getQueue();
+
       Promise.resolve()
-        .then(task)
-        .then(resolve)
-        .catch(reject)
+        .then(x.task)
+        .then(x.resolve)
+        .catch(x.reject)
         .finally(() => {
-          ref.current_count--;
+          ref.running.delete(x);
           next();
         });
     }
@@ -98,7 +106,8 @@ export const concurrent = ({
 
   return {
     add,
-    busy,
+    idle,
     clear,
+    tasks,
   };
 };

@@ -1,4 +1,4 @@
-import { concurrent, wait } from "@/index";
+import { createSchedular, wait } from "@/index";
 import { describe, expect, test } from "vitest";
 
 const task1Time = 50;
@@ -18,9 +18,9 @@ const task3 = async () => {
   console.log("task3 done", Date.now());
 };
 
-describe.concurrent("concurrent reject", async () => {
-  test("reject ", async () => {
-    const instance = concurrent();
+describe.concurrent("concurrent clear", async () => {
+  test("reject pending", async () => {
+    const instance = createSchedular();
     const seq: number[] = [];
     const p1 = instance.add(async () => {
       seq.push(1);
@@ -58,8 +58,7 @@ describe.concurrent("concurrent reject", async () => {
       },
       { priority: 0 }
     );
-    p1.reject();
-    p5.reject();
+    instance.clear(5);
     await Promise.allSettled([
       p1.pending,
       p2.pending,
@@ -68,6 +67,6 @@ describe.concurrent("concurrent reject", async () => {
       p5.pending,
       p6.pending,
     ]);
-    expect(seq).toEqual([1, 2, 4, 3, 6]);
+    expect(seq).toEqual([1, 2, 5, 4, 6]);
   });
 });
