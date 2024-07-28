@@ -49,16 +49,19 @@ export const createSchedular = ({
   ) => {
     const x = defer<T>();
     const queue = getQueue((cfg?.priority ?? MID) as IsValidPriority<N>);
-    const resolve = x.resolve;
-    const pending = x.pending;
     const reject: (typeof x)["reject"] = (msg) => {
       x.reject(msg);
       queue.delete(item);
     };
-    const item = { ...cfg, task, resolve, reject } as AnyTaskItem;
+    const item = {
+      ...cfg,
+      task,
+      resolve: x.resolve,
+      reject,
+    } as AnyTaskItem;
     queue.add(item);
     next();
-    return { pending, reject };
+    return { pending: x.pending, reject };
   };
 
   const idle = (): boolean => {
@@ -76,22 +79,20 @@ export const createSchedular = ({
 
   const tasks = () => {
     const running = Array.from(ref.running);
-    const queue = ref.queue.reduceRight<AnyTaskItem[]>(
+    const pending = ref.queue.reduceRight<AnyTaskItem[]>(
       (acc, x) => acc.concat(Array.from(x)),
       []
     );
-    return { running, queue };
+    return { running, pending };
   };
 
   const next = (): void => {
-    let queue = getQueue();
-    while (idle() && queue.size) {
+    for (let queue = getQueue(); idle() && queue.size; queue = getQueue()) {
       const x: AnyTaskItem = queue.values().next().value;
 
       ref.running.add(x);
 
       queue.delete(x);
-      queue = getQueue();
 
       Promise.resolve()
         .then(x.task)
