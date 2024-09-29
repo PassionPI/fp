@@ -1,5 +1,5 @@
 import { createRank } from "@/sync/rank";
-import { IsValidPriority } from "types";
+import { IsValidPriority } from "@/utils/valid_number";
 
 type Work = () => void;
 
