@@ -1,4 +1,4 @@
-import { createSchedular, wait } from "@/index";
+import { createAsyncSchedular, wait } from "@/index";
 import { describe, expect, test } from "vitest";
 
 const task1Time = 50;
@@ -20,7 +20,7 @@ const task3 = async () => {
 
 describe.concurrent("concurrent clear", async () => {
   test("reject pending", async () => {
-    const instance = createSchedular();
+    const instance = createAsyncSchedular();
     const seq: number[] = [];
     const p1 = instance.add(async () => {
       seq.push(1);
