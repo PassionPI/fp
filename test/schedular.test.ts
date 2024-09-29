@@ -1,4 +1,4 @@
-import { createSchedular, wait } from "@/index";
+import { createAsyncSchedular, wait } from "@/index";
 import { valid_number } from "@/utils/valid_number";
 import { describe, expect, test } from "vitest";
 
@@ -21,7 +21,7 @@ const task3 = async () => {
 
 describe.concurrent("concurrent base", async () => {
   test("busy", async () => {
-    const instance = createSchedular();
+    const instance = createAsyncSchedular();
     const start_time = Date.now();
     const p1 = instance.add(task1);
     expect(instance.idle()).eq(true);
@@ -38,7 +38,7 @@ describe.concurrent("concurrent base", async () => {
     expect(end_time - start_time).gte(task2Time);
   });
   test("priority", async () => {
-    const instance = createSchedular();
+    const instance = createAsyncSchedular();
     const seq: number[] = [];
     const p1 = instance.add(async () => {
       seq.push(1);
