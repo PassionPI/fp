@@ -15,17 +15,19 @@ const twice_next = async (x: number, next: () => Promise<number>) => {
 test("null", async () => {
   //@ts-expect-error
   const result = await onion<number, number>(null, end)(1);
-  expect(result).toBe(1);
+  expect(result).toBe(undefined);
 });
 test("normal", async () => {
-  const result = await onion<number, number>([mid, mid, mid], end)(1);
+  const result = await onion<number, number>(mid, mid, mid, end)(1);
   expect(result).toBe(4);
 });
 
 test("twice_next", async () => {
   let count = 0;
   const result = await onion<number, number>(
-    [twice_next, mid, mid],
+    twice_next,
+    mid,
+    mid,
     async (x) => {
       count++;
       return x;
