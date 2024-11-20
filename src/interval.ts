@@ -1,8 +1,8 @@
 import { either } from "./either";
-import { curry2 } from "./utils/curry";
+import { curry } from "./utils/curry";
 import { wait } from "./wait";
 
-export const interval = curry2((ms: number, fn: () => void | Promise<void>) => {
+export const interval = curry((ms: number, fn: () => void | Promise<void>) => {
   let run = true;
   const stop = () => {
     run = false;

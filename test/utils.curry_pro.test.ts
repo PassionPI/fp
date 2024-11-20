@@ -1,4 +1,4 @@
-import { curry3, _ } from "@/utils/curry";
+import { _, curry3 } from "@/utils/curry_pro";
 import { expect, test } from "vitest";
 
 const add = curry3((x: number, y: number, z: number) => x + y + z);
