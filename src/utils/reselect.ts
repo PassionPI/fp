@@ -11,17 +11,19 @@ export const reselect = <T, S extends ReadonlySelector<T>, R>(
   calc: Calculator<T, S, R>
 ) => {
   type Args = ReadonlySelectorReturn<T, S>;
-  const last: { args: Args; result: R } = {
-    args: [] as Args,
-    result: null as R,
-  };
+
+  let args = [] as Args;
+  let result: R;
 
   return (state: T): R => {
-    const args = selectors.map((selector) => selector(state)) as Args;
-    if (args.some((arg, index) => !Object.is(arg, last.args[index]))) {
-      last.args = args;
-      last.result = calc(...args);
+    const next = selectors.map((selector) => selector(state)) as Args;
+    if (
+      args.length != next.length ||
+      next.some((arg, index) => !Object.is(arg, args[index]))
+    ) {
+      args = next;
+      result = calc(...args);
     }
-    return last.result;
+    return result;
   };
 };
