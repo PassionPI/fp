@@ -1,7 +1,7 @@
-import { async_pipe } from "@/index";
+import { flow } from "@/index";
 import { expect, test } from "vitest";
 
-test("async_pipe", async () => {
+test("flow", async () => {
   const f = async (x: number) => {
     return Promise.resolve(x + 1);
   };
@@ -11,6 +11,6 @@ test("async_pipe", async () => {
   const h = async (x: number) => {
     return Promise.resolve(x + 3);
   };
-  const data = await async_pipe(f, g, h)(3);
+  const data = await flow(f, g, h)(3);
   expect(data).toBe(11);
 });

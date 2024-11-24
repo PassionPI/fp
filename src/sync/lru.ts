@@ -1,25 +1,45 @@
-const LRU = <K, V>(size: number) => {
-  const cache = new Map<K, V>();
+type MapKey = string | number | symbol | object;
 
+export const LRU = <K extends MapKey, V>(size: number) => {
+  const cache = new Map<K, V | undefined>();
+  const del = (key: K) => cache.delete(key);
+  const has = (key: K) => cache.has(key);
+  const add = (key: K, value?: V) => cache.set(key, value);
+  const tail_key = () => cache.keys().next().value as K;
+  const move_to_head = (key: K, value?: V) => {
+    del(key);
+    add(key, value);
+  };
   return {
+    del,
+    has,
     get(key: K): V | undefined {
-      const value = cache.get(key);
-      if (cache.has(key)) {
-        cache.delete(key);
-        cache.set(key, value!);
+      if (has(key)) {
+        const value = cache.get(key);
+        move_to_head(key, value);
+        return value;
       }
-      return value;
     },
     set(key: K, value: V): void {
-      if (cache.has(key)) {
-        cache.delete(key);
-      }
-      cache.set(key, value);
+      move_to_head(key, value);
       if (cache.size > size) {
-        cache.delete(cache.keys().next().value);
+        del(tail_key());
       }
     },
   };
 };
 
-export { LRU };
+export const withLRU = <A extends unknown[], R>(
+  fn: (...args: A) => R,
+  getKey: (...args: A) => MapKey,
+  size: number = 10
+) => {
+  const cache = LRU<MapKey, R>(size);
+  return (...args: A): R => {
+    const key = getKey(...args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args) as R);
+    }
+    return cache.get(key) as R;
+  };
+};
