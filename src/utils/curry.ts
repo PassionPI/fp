@@ -1,23 +1,20 @@
 type ToCurrying<Args extends unknown[], Return> = Args extends [
   ...infer Head,
-  infer Tail
+  infer Tail,
 ]
   ? ToCurrying<Head, (arg: Tail) => Return>
   : Return;
 
-export type Currying<T extends Function> = T extends (
-  ...args: infer Args
-) => infer Return
-  ? Args extends []
-    ? () => Return
-    : ToCurrying<Args, Return>
-  : never;
+export type Currying<Args extends unknown[], Return> = Args extends []
+  ? () => Return
+  : ToCurrying<Args, Return>;
 
-export const curry = <T extends Function>(fn: T, len?: number): Currying<T> => {
+export const curry = <Args extends unknown[], Return>(
+  fn: (...args: Args) => Return,
+  len?: number,
+): Currying<Args, Return> => {
   const x = fn.length || len || 0;
-  const c = (...args: unknown[]) =>
-    args.length >= x
-      ? fn(...args)
-      : (...more: unknown[]) => c(...args, ...more);
-  return c as Currying<T>;
+  const c = (...args: Args) =>
+    args.length >= x ? fn(...args) : (...more: []) => c(...args, ...more);
+  return c as Currying<Args, Return>;
 };
