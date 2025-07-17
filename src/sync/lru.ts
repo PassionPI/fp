@@ -26,6 +26,9 @@ export const LRU = <K extends MapKey, V>(size: number) => {
         del(tail_key());
       }
     },
+    size(x: number) {
+      size = x;
+    },
   };
 };
 
